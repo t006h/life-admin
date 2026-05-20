@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Life Admin — your AI-powered personal chief-of-staff for life administration">
+  <meta name="theme-color" content="#0f766e">
+  <title>Life Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-banner app-banner--loading" id="appBanner" role="status" hidden>
+    <span id="appBannerText">Loading your reminders…</span>
+  </div>
+
+  <div class="app">
+    <header class="header">
+      <div class="header__brand">
+        <span class="header__logo" aria-hidden="true">◆</span>
+        <div>
+          <h1 class="header__title">Life Admin</h1>
+          <p class="header__tagline">Your personal chief-of-staff</p>
+        </div>
+      </div>
+      <time class="header__date" id="todayDate"></time>
+    </header>
+
+    <main class="main" id="main">
+      <!-- Dashboard -->
+      <section class="view view--active" id="view-dashboard" data-view="dashboard">
+        <article class="priorities-card" id="prioritiesCard" hidden>
+          <header class="priorities-card__header">
+            <h3 class="priorities-card__title">Today's Priorities</h3>
+            <span class="notification-badge notification-badge--inline" id="prioritiesBadge" hidden>0</span>
+          </header>
+          <ul class="priorities-card__list" id="prioritiesList"></ul>
+        </article>
+
+        <div class="section-header">
+          <div class="section-header__row">
+            <h2 class="section-title">What do I need to do today?</h2>
+            <span class="notification-badge" id="notificationBadge" hidden aria-label="Notifications">
+              <span id="notificationBadgeCount">0</span>
+            </span>
+          </div>
+          <p class="section-subtitle" id="dashboardSummary"></p>
+        </div>
+        <div class="dashboard-stats" id="dashboardStats"></div>
+        <div class="card-list" id="todayList"></div>
+        <p class="empty-state empty-state--inline" id="todayEmpty" hidden>
+          Nothing urgent today. You're all caught up.
+        </p>
+      </section>
+
+      <!-- MOT -->
+      <section class="view" id="view-mot" data-view="mot">
+        <div class="section-header">
+          <h2 class="section-title">MOT reminders</h2>
+          <p class="section-subtitle">Vehicle test due dates</p>
+        </div>
+        <div class="card-list" id="motList"></div>
+        <p class="empty-state" id="motEmpty" hidden>No MOT reminders yet.</p>
+      </section>
+
+      <!-- Passport -->
+      <section class="view" id="view-passport" data-view="passport">
+        <div class="section-header">
+          <h2 class="section-title">Passport expiry</h2>
+          <p class="section-subtitle">Renew before you travel</p>
+        </div>
+        <div class="card-list" id="passportList"></div>
+        <p class="empty-state" id="passportEmpty" hidden>No passport reminders yet.</p>
+      </section>
+
+      <!-- Driving licence -->
+      <section class="view" id="view-licence" data-view="licence">
+        <div class="section-header">
+          <h2 class="section-title">Driving licence</h2>
+          <p class="section-subtitle">Licence renewal dates</p>
+        </div>
+        <div class="card-list" id="licenceList"></div>
+        <p class="empty-state" id="licenceEmpty" hidden>No licence reminders yet.</p>
+      </section>
+
+      <!-- Subscriptions -->
+      <section class="view" id="view-subscriptions" data-view="subscriptions">
+        <div class="section-header">
+          <h2 class="section-title">Subscriptions</h2>
+          <p class="section-subtitle">Recurring services &amp; memberships</p>
+        </div>
+        <div class="card-list" id="subscriptionsList"></div>
+        <p class="empty-state" id="subscriptionsEmpty" hidden>No subscriptions tracked yet.</p>
+      </section>
+
+      <!-- Bills -->
+      <section class="view" id="view-bills" data-view="bills">
+        <div class="section-header">
+          <h2 class="section-title">Bill reminders</h2>
+          <p class="section-subtitle">Upcoming payments</p>
+        </div>
+        <div class="card-list" id="billsList"></div>
+        <p class="empty-state" id="billsEmpty" hidden>No bill reminders yet.</p>
+      </section>
+    </main>
+
+    <button type="button" class="fab" id="fabAdd" aria-label="Add new item">
+      <span class="fab__icon" aria-hidden="true">+</span>
+    </button>
+
+    <nav class="nav" aria-label="Main navigation">
+      <button type="button" class="nav__item nav__item--active" data-nav="dashboard" aria-current="page">
+        <span class="nav__icon-wrap">
+          <span class="nav__icon" aria-hidden="true">☀</span>
+          <span class="notification-badge notification-badge--nav" id="navNotificationBadge" hidden>0</span>
+        </span>
+        <span class="nav__label">Today</span>
+      </button>
+      <button type="button" class="nav__item" data-nav="mot">
+        <span class="nav__icon" aria-hidden="true">🚗</span>
+        <span class="nav__label">MOT</span>
+      </button>
+      <button type="button" class="nav__item" data-nav="passport">
+        <span class="nav__icon" aria-hidden="true">🛂</span>
+        <span class="nav__label">Passport</span>
+      </button>
+      <button type="button" class="nav__item" data-nav="licence">
+        <span class="nav__icon" aria-hidden="true">🪪</span>
+        <span class="nav__label">Licence</span>
+      </button>
+      <button type="button" class="nav__item" data-nav="subscriptions">
+        <span class="nav__icon" aria-hidden="true">↻</span>
+        <span class="nav__label">Subs</span>
+      </button>
+      <button type="button" class="nav__item" data-nav="bills">
+        <span class="nav__icon" aria-hidden="true">£</span>
+        <span class="nav__label">Bills</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Modal -->
+  <dialog class="modal" id="itemModal">
+    <form class="modal__form" id="itemForm" method="dialog">
+      <header class="modal__header">
+        <h3 class="modal__title" id="modalTitle">Add item</h3>
+        <button type="button" class="modal__close" id="modalClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body">
+        <input type="hidden" id="itemId" name="id">
+        <input type="hidden" id="itemCategory" name="category">
+
+        <label class="field">
+          <span class="field__label" id="labelTitle">Name</span>
+          <input class="field__input" type="text" id="fieldTitle" name="title" required autocomplete="off">
+        </label>
+
+        <label class="field" id="fieldSubtitleWrap">
+          <span class="field__label" id="labelSubtitle">Details</span>
+          <input class="field__input" type="text" id="fieldSubtitle" name="subtitle" autocomplete="off">
+        </label>
+
+        <label class="field">
+          <span class="field__label" id="labelDueDate">Due date</span>
+          <input class="field__input" type="date" id="fieldDueDate" name="dueDate" required>
+        </label>
+
+        <div class="field-row" id="amountRow">
+          <label class="field field--half">
+            <span class="field__label">Amount</span>
+            <input class="field__input" type="number" id="fieldAmount" name="amount" min="0" step="0.01" placeholder="0.00">
+          </label>
+          <label class="field field--half">
+            <span class="field__label">Frequency</span>
+            <select class="field__input" id="fieldFrequency" name="frequency">
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+              <option value="weekly">Weekly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="once">One-off</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field__label">Notes <span class="field__optional">(optional)</span></span>
+          <textarea class="field__input field__textarea" id="fieldNotes" name="notes" rows="2"></textarea>
+        </label>
+      </div>
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--ghost" id="btnDelete" hidden>Delete</button>
+        <button type="submit" class="btn btn--primary">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="supabase-client.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
