@@ -6,7 +6,7 @@
   const SURFACE_ACTION_CAP = 3;
   const SURFACE_WORKFLOW_CAP = 3;
 
-  const TAGLINE = "Remembers and handles life so your family doesn't have to.";
+  const TAGLINE = "Life admin remembers and handles life so you don't have to.";
 
   function capArray(items, max = LIST_CAP) {
     return (items || []).slice(0, max);

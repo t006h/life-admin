@@ -1,7 +1,7 @@
 {
   "name": "Life Admin",
   "short_name": "Life Admin",
-  "description": "Remembers and handles life so your family doesn't have to.",
+  "description": "Life admin remembers and handles life so you don't have to.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
