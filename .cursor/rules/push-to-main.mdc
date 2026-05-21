@@ -1,0 +1,14 @@
+---
+description: Push completed work to GitHub main after making changes
+alwaysApply: true
+---
+
+# Push to main
+
+After completing code changes the user requested (or clearly implied), commit and push to **`main`** on `origin` unless they say otherwise.
+
+- Use `git push origin master:main` (local branch may be `master`) or push `main` directly if checked out.
+- Do not push secrets (`.env`, real keys in `config.js`).
+- Only skip pushing when the user explicitly says not to commit/push, or when there are no changes to push.
+
+Briefly confirm the commit message and that the push succeeded.
