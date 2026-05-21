@@ -46,27 +46,6 @@
     }
   }
 
-  function renderQuickActions(els, handlers) {
-    if (!els.quickActions) return;
-    els.quickActions.replaceChildren();
-
-    const actions = [
-      { id: "brain", icon: "💡", label: "Brain dump", run: () => handlers.onBrainDump?.() },
-      { id: "task", icon: "✓", label: "Add task", run: () => handlers.onAddTask?.() },
-      { id: "reminder", icon: "🔔", label: "Reminder", run: () => handlers.onAddReminder?.() },
-      { id: "family", icon: "👨‍👩‍👧", label: "Family", run: () => handlers.onOpenFamily?.() },
-    ];
-
-    actions.slice(0, 4).forEach((a) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "os-quick-chip";
-      btn.innerHTML = `<span aria-hidden="true">${a.icon}</span>${escape(a.label)}`;
-      btn.addEventListener("click", a.run);
-      els.quickActions.appendChild(btn);
-    });
-  }
-
   function renderRemindersStrip(els, notifications, handlers) {
     if (!els.remindersStrip || !els.remindersList) return;
     const items = (notifications || []).slice(0, CAP());
