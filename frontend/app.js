@@ -1376,7 +1376,7 @@ async function init() {
         openAddModal(cat);
       },
       onOpenFamily: () => switchView("family"),
-      onOpenNotifications: () => document.getElementById("btnBell")?.click(),
+      onOpenNotifications: () => window.LifeAdminNotificationCenter?.open?.(),
       onOpenReminder: (category, id) => openEditModal(category, id),
     }
   );
@@ -1401,7 +1401,7 @@ async function init() {
   window.LifeAdminOSBindings.initAll();
 
   document.getElementById("btnTodayPill")?.addEventListener("click", () => {
-    document.getElementById("btnBell")?.click();
+    window.LifeAdminNotificationCenter?.open?.();
   });
 
   window.LifeAdminContextEngine.init({

@@ -79,15 +79,13 @@ body {
 }
 
 .app-bar--no-menu {
-  grid-template-columns: 1fr 44px;
+  grid-template-columns: 1fr;
 }
 
 .app-bar--no-menu .app-bar__center {
   grid-column: 1;
-}
-
-.app-bar--no-menu .app-bar__bell {
-  grid-column: 2;
+  width: 100%;
+  min-width: 0;
 }
 
 .app-bar__center { text-align: center; padding: 0 4px; }

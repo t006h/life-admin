@@ -9,6 +9,8 @@
 .app-bar__center--global {
   text-align: left;
   align-items: flex-start;
+  width: 100%;
+  min-width: 0;
 }
 
 .app-bar__greeting {
@@ -20,10 +22,14 @@
 
 .app-bar__tagline {
   margin: 2px 0 0;
-  font-size: 0.75rem;
+  font-size: clamp(0.5625rem, 2.5vw, 0.8125rem);
   color: var(--text-muted);
-  line-height: 1.35;
+  line-height: 1.2;
   font-weight: 500;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  width: 100%;
+  max-width: 100%;
 }
 
 #accountRole {
