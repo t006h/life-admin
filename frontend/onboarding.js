@@ -356,6 +356,8 @@
 
     document.body.classList.remove("onboarding-done");
     if (els.shell) els.shell.hidden = false;
+    window.LifeAdminDeploy?.hideLoader?.();
+    window.LifeAdminDeploy?.hideFatalError?.();
     showStep("landing");
     return true;
   }

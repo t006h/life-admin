@@ -11,6 +11,14 @@
   background: linear-gradient(165deg, #f4f7f5 0%, #e8f0ec 50%, #f4f6f4 100%);
   font-family: var(--font);
   overflow: hidden;
+  pointer-events: auto;
+}
+
+.onboarding button,
+.onboarding a,
+.onboarding input,
+.onboarding label {
+  pointer-events: auto;
 }
 
 .onboarding__live-prompt,

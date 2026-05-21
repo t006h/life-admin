@@ -1256,8 +1256,67 @@ async function deleteItem() {
 
 // --- Init ---
 
+function bindAppUiEventsOnce() {
+  if (window.__LIFE_ADMIN_UI_BOUND__) return;
+  window.__LIFE_ADMIN_UI_BOUND__ = true;
+
+  $$("#mainTabBar .tab-bar__item").forEach((btn) => {
+    btn.addEventListener("click", () => handleTabNav(btn.dataset.nav));
+  });
+
+  document.getElementById("intentMicBtn")?.addEventListener("click", () => {
+    alert("Voice input coming soon — type for now.");
+  });
+
+  document.querySelectorAll("[data-nav-jump]").forEach((btn) => {
+    btn.addEventListener("click", () => switchView(btn.dataset.navJump));
+  });
+
+  uiEls.fabAdd?.addEventListener("click", () => {
+    const open = uiEls.fabMenu && !uiEls.fabMenu.hidden;
+    setFabOpen(!open);
+  });
+
+  uiEls.fabMenu?.querySelectorAll("[data-quick]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      setFabOpen(false);
+      handleQuickAction(btn.dataset.quick);
+    });
+  });
+
+  uiEls.filterTasks?.addEventListener("click", () => toggleFilterPanel("tasks"));
+  uiEls.filterUpcoming?.addEventListener("click", () => toggleFilterPanel("upcoming"));
+
+  uiEls.sideMenuClose?.addEventListener("click", () => uiEls.sideMenu?.close());
+  uiEls.sideMenu?.addEventListener("click", (e) => {
+    if (e.target === uiEls.sideMenu) uiEls.sideMenu.close();
+  });
+
+  document.addEventListener("click", (e) => {
+    if (uiEls.fabMenu?.classList.contains("is-open") && !e.target.closest(".fab-wrap")) {
+      setFabOpen(false);
+    }
+  });
+
+  els.modalClose.addEventListener("click", closeModal);
+  els.itemModal.addEventListener("click", (e) => {
+    if (e.target === els.itemModal) closeModal();
+  });
+
+  els.itemForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!isSaving) saveItem(new FormData(els.itemForm));
+  });
+
+  els.btnDelete.addEventListener("click", () => {
+    if (confirm("Delete this item?")) deleteItem();
+  });
+}
+
 async function init() {
   renderSideMenu();
+  bindAppUiEventsOnce();
+  window.LifeAdminSubscriptions?.init?.();
   setFabOpen(false);
   setInteractable(false);
 
@@ -1714,6 +1773,7 @@ async function init() {
   await window.LifeAdminProfile.initUserContext();
 
   if (!getClient()) {
+    setInteractable(true);
     window.LifeAdminDeploy?.markBooted?.();
     showBanner("error", window.supabaseConfigError);
     await renderAll();
@@ -1752,64 +1812,11 @@ async function init() {
     if (window.LifeAdminOnboarding?.isComplete?.()) {
       window.LifeAdminDeploy?.showFatalError?.("Could not load your data", msg);
     }
+    setInteractable(true);
     await renderAll();
   } finally {
     isLoading = false;
   }
-
-  $$("#mainTabBar .tab-bar__item").forEach((btn) => {
-    btn.addEventListener("click", () => handleTabNav(btn.dataset.nav));
-  });
-
-  document.getElementById("intentMicBtn")?.addEventListener("click", () => {
-    alert("Voice input coming soon — type for now.");
-  });
-
-  window.LifeAdminSubscriptions?.init?.();
-
-  document.querySelectorAll("[data-nav-jump]").forEach((btn) => {
-    btn.addEventListener("click", () => switchView(btn.dataset.navJump));
-  });
-
-  uiEls.fabAdd?.addEventListener("click", () => {
-    const open = uiEls.fabMenu && !uiEls.fabMenu.hidden;
-    setFabOpen(!open);
-  });
-
-  uiEls.fabMenu?.querySelectorAll("[data-quick]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      setFabOpen(false);
-      handleQuickAction(btn.dataset.quick);
-    });
-  });
-
-  uiEls.filterTasks?.addEventListener("click", () => toggleFilterPanel("tasks"));
-  uiEls.filterUpcoming?.addEventListener("click", () => toggleFilterPanel("upcoming"));
-
-  uiEls.sideMenuClose?.addEventListener("click", () => uiEls.sideMenu?.close());
-  uiEls.sideMenu?.addEventListener("click", (e) => {
-    if (e.target === uiEls.sideMenu) uiEls.sideMenu.close();
-  });
-
-  document.addEventListener("click", (e) => {
-    if (uiEls.fabMenu?.classList.contains("is-open") && !e.target.closest(".fab-wrap")) {
-      setFabOpen(false);
-    }
-  });
-
-  els.modalClose.addEventListener("click", closeModal);
-  els.itemModal.addEventListener("click", (e) => {
-    if (e.target === els.itemModal) closeModal();
-  });
-
-  els.itemForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (!isSaving) saveItem(new FormData(els.itemForm));
-  });
-
-  els.btnDelete.addEventListener("click", () => {
-    if (confirm("Delete this item?")) deleteItem();
-  });
 }
 
 function wireSurfaceExpansion() {

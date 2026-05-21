@@ -16,6 +16,8 @@
 .app-boot-loader[hidden],
 .app-boot-error[hidden] {
   display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
 }
 
 .app-boot-loader__logo {

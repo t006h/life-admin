@@ -1,7 +1,7 @@
 /**
  * Life Admin — PWA service worker (static shell cache, network-first for navigations)
  */
-const CACHE = "life-admin-v6";
+const CACHE = "life-admin-v7";
 const PRECACHE = [
   "/",
   "/index.html",
