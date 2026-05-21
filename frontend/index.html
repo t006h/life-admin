@@ -62,35 +62,26 @@
       <button type="button" class="onboarding__skip" id="onboardingSkipAuth">Continue without signing in</button>
     </section>
 
-    <section class="onboarding__screen" data-onboarding-step="stress" hidden>
-      <p class="onboarding__logo">One question</p>
-      <h2 class="onboarding__headline" style="font-size:1.5rem">What usually creates the most stress?</h2>
-      <p class="onboarding__sub">We'll personalize what surfaces first.</p>
-      <div class="onboarding__options" id="onboardingStressOptions">
-        <button type="button" class="onboarding__option" data-stress-id="family">Family schedules</button>
-        <button type="button" class="onboarding__option" data-stress-id="bills">Bills &amp; finances</button>
-        <button type="button" class="onboarding__option" data-stress-id="documents">Documents</button>
-        <button type="button" class="onboarding__option" data-stress-id="household">Household</button>
-        <button type="button" class="onboarding__option" data-stress-id="everything">Everything</button>
-      </div>
-      <button type="button" class="onboarding__cta" id="onboardingStressContinue" disabled>Continue</button>
-    </section>
-
-    <section class="onboarding__screen" data-onboarding-step="first-use" hidden>
-      <p class="onboarding__logo">Your first win</p>
-      <h2 class="onboarding__headline" style="font-size:1.5rem">What do you need help with?</h2>
-      <p class="onboarding__sub">We'll create your workflow, tasks, and reminders.</p>
+    <section class="onboarding__screen" data-onboarding-step="reminder" hidden>
+      <p class="onboarding__logo">Your first reminder</p>
+      <h2 class="onboarding__headline" style="font-size:1.5rem">Add a reminder</h2>
+      <p class="onboarding__sub">Type anything — we'll sort it into the right category straight away.</p>
       <div class="onboarding__intent">
-        <form class="onboarding__intent-form" id="onboardingFirstUseForm">
-          <input type="text" class="onboarding__intent-input" id="onboardingFirstUseInput" placeholder="Renew my passport…" autocomplete="off" enterkeyhint="go">
-          <button type="submit" class="onboarding__cta" id="onboardingFirstUseSubmit">Set it up</button>
+        <form class="onboarding__intent-form" id="onboardingReminderForm">
+          <input type="text" class="onboarding__intent-input" id="onboardingReminderInput" placeholder="Passport expires in March, MOT in June…" autocomplete="off" enterkeyhint="done" required>
+          <div class="onboarding__category-preview" id="onboardingReminderCategory" hidden aria-live="polite">
+            <span class="onboarding__category-badge" id="onboardingReminderCategoryLabel"></span>
+            <span class="onboarding__category-detail" id="onboardingReminderCategoryDetail"></span>
+          </div>
+          <button type="submit" class="onboarding__cta" id="onboardingReminderSubmit" disabled>Add reminder</button>
         </form>
         <div class="onboarding__examples" id="onboardingExampleChips">
-          <button type="button" class="onboarding__chip">Renew my passport</button>
-          <button type="button" class="onboarding__chip">Theo has a school trip</button>
-          <button type="button" class="onboarding__chip">We're moving house</button>
+          <button type="button" class="onboarding__chip">MOT due in June</button>
+          <button type="button" class="onboarding__chip">Passport expires March 2027</button>
+          <button type="button" class="onboarding__chip">Netflix subscription £15.99</button>
+          <button type="button" class="onboarding__chip">Council tax payment</button>
         </div>
-        <p class="onboarding__status" id="onboardingFirstUseStatus" aria-live="polite"></p>
+        <p class="onboarding__status" id="onboardingReminderStatus" aria-live="polite"></p>
       </div>
     </section>
 
@@ -1213,7 +1204,7 @@
   <script src="family.js?v=20260521"></script>
   <script src="planning-ai.js?v=20260523"></script>
   <script src="planning.js?v=20260523"></script>
-  <script src="onboarding.js?v=20260530"></script>
+  <script src="onboarding.js?v=20260521b"></script>
   <script src="os-core.js?v=20260529"></script>
   <script src="os-bindings.js?v=20260529"></script>
   <script src="action-engine.js?v=20260528"></script>
@@ -1228,7 +1219,7 @@
   <script src="life-events-ai.js?v=20260526"></script>
   <script src="workflow-definitions.js?v=20260526"></script>
   <script src="workflow-engine.js?v=20260526"></script>
-  <script src="intent-engine.js?v=20260526"></script>
+  <script src="intent-engine.js?v=20260521b"></script>
   <script src="workflow-ui.js?v=20260526"></script>
   <script src="life-events.js?v=20260526"></script>
   <script src="notifications-center.js?v=20260522"></script>

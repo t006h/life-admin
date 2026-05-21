@@ -1803,12 +1803,13 @@ async function runStartApplication() {
       emailForm: document.getElementById("onboardingEmailForm"),
       emailInput: document.getElementById("onboardingEmailInput"),
       skipAuth: document.getElementById("onboardingSkipAuth"),
-      stressOptions: document.querySelectorAll("#onboardingStressOptions .onboarding__option"),
-      stressContinue: document.getElementById("onboardingStressContinue"),
-      firstUseForm: document.getElementById("onboardingFirstUseForm"),
-      firstUseInput: document.getElementById("onboardingFirstUseInput"),
-      firstUseSubmit: document.getElementById("onboardingFirstUseSubmit"),
-      firstUseStatus: document.getElementById("onboardingFirstUseStatus"),
+      reminderForm: document.getElementById("onboardingReminderForm"),
+      reminderInput: document.getElementById("onboardingReminderInput"),
+      reminderSubmit: document.getElementById("onboardingReminderSubmit"),
+      reminderCategory: document.getElementById("onboardingReminderCategory"),
+      reminderCategoryLabel: document.getElementById("onboardingReminderCategoryLabel"),
+      reminderCategoryDetail: document.getElementById("onboardingReminderCategoryDetail"),
+      reminderStatus: document.getElementById("onboardingReminderStatus"),
       exampleChips: document.querySelectorAll("#onboardingExampleChips .onboarding__chip"),
       completeTitle: document.getElementById("onboardingCompleteTitle"),
       completeSub: document.getElementById("onboardingCompleteSub"),
@@ -1817,10 +1818,9 @@ async function runStartApplication() {
     },
     {
       onEnterApp: enterMainApp,
-      onActivateWorkflow: (...args) => workflowIntentHandlers.onActivateWorkflow(...args),
-      onAddTask: async (item) => {
+      onCreateReminder: async (category, item) => {
         if (!getClient()) return;
-        await window.LifeAdminTasks.createTaskQuick(item);
+        await createReminderFromWorkflow(category, item);
       },
     }
   );

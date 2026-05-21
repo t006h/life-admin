@@ -157,6 +157,105 @@
     return null;
   }
 
+  const REMINDER_CATEGORY_META = {
+    mot: { label: "MOT", icon: "🚗", defaultDueDays: 14 },
+    passport: { label: "Passport", icon: "🛂", defaultDueDays: 180 },
+    licence: { label: "Driving licence", icon: "🪪", defaultDueDays: 180 },
+    subscriptions: { label: "Subscription", icon: "💳", defaultDueDays: 7 },
+    bills: { label: "Bill", icon: "£", defaultDueDays: 14 },
+  };
+
+  function cleanReminderTitle(text) {
+    return normalize(text)
+      .replace(/^(please\s+)?(remind me( to)?|remember to|add a reminder( for)?)\s+/i, "")
+      .replace(/\s+(due|expires?|expiring)\s+/i, " ")
+      .trim() || normalize(text);
+  }
+
+  function extractDueDateFromText(text) {
+    const lower = text.toLowerCase();
+    const iso = text.match(/\b(20\d{2})-(\d{2})-(\d{2})\b/);
+    if (iso) return iso[0];
+    const slash = text.match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](20\d{2})\b/);
+    if (slash) {
+      const [, d, m, y] = slash;
+      return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+    }
+    const inDays = lower.match(/\bin\s+(\d+)\s+days?\b/);
+    if (inDays) return dueInDays(Number(inDays[1]));
+    const months = {
+      january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+      july: 6, august: 7, september: 8, october: 9, november: 10, december: 11,
+      jan: 0, feb: 1, mar: 2, apr: 3, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+    };
+    for (const [name, idx] of Object.entries(months)) {
+      if (!lower.includes(name)) continue;
+      const yearMatch = lower.match(/\b(20\d{2})\b/);
+      const year = yearMatch ? Number(yearMatch[1]) : new Date().getFullYear();
+      const d = new Date(year, idx, 15);
+      if (d < new Date()) d.setFullYear(year + 1);
+      return d.toISOString().slice(0, 10);
+    }
+    return null;
+  }
+
+  /** Classify free-text into a reminder category (onboarding + quick add). */
+  function categorizeReminder(raw) {
+    const text = normalize(raw);
+    if (!text) return null;
+
+    const lower = text.toLowerCase();
+    const title = cleanReminderTitle(text);
+    const parsedDue = extractDueDateFromText(text);
+
+    const rules = [
+      { re: /\b(passport|visa)\b/i, category: "passport" },
+      { re: /\b(mot|car test|garage|vehicle)\b/i, category: "mot" },
+      { re: /\b(licen[cs]e|driving)\b/i, category: "licence" },
+      { re: /\b(netflix|spotify|subscription|prime|disney|apple music)\b/i, category: "subscriptions" },
+      { re: /\b(bill|council tax|utilities|insurance|rent|mortgage|payment|tax)\b/i, category: "bills" },
+      { re: /\b(dentist|doctor|appointment)\b/i, category: "bills" },
+    ];
+
+    for (const { re, category } of rules) {
+      if (re.test(lower)) {
+        const meta = REMINDER_CATEGORY_META[category];
+        return {
+          category,
+          title,
+          dueDate: parsedDue || dueInDays(meta.defaultDueDays),
+          label: meta.label,
+          icon: meta.icon,
+          summary: `Sorted as ${meta.icon} ${meta.label}`,
+        };
+      }
+    }
+
+    const legacy = parseLegacy(text);
+    const reminderAction = legacy?.actions?.find((a) => a.type === "reminder");
+    if (reminderAction?.category) {
+      const meta = REMINDER_CATEGORY_META[reminderAction.category] || REMINDER_CATEGORY_META.bills;
+      return {
+        category: reminderAction.category,
+        title: reminderAction.title || title,
+        dueDate: reminderAction.dueDate || parsedDue || dueInDays(meta.defaultDueDays),
+        label: meta.label,
+        icon: meta.icon,
+        summary: `Sorted as ${meta.icon} ${meta.label}`,
+      };
+    }
+
+    const meta = REMINDER_CATEGORY_META.bills;
+    return {
+      category: "bills",
+      title,
+      dueDate: parsedDue || dueInDays(meta.defaultDueDays),
+      label: meta.label,
+      icon: meta.icon,
+      summary: `Sorted as ${meta.icon} ${meta.label}`,
+    };
+  }
+
   function parseIntent(raw) {
     const wf = window.LifeAdminWorkflowEngine?.parseIntent?.(raw);
     const detection = window.LifeAdminWorkflowEngine?.detectIntent?.(raw);
@@ -181,6 +280,7 @@
 
   window.LifeAdminIntentEngine = {
     parseIntent,
+    categorizeReminder,
     EXAMPLE_CHIPS,
   };
 })();

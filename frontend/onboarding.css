@@ -229,6 +229,30 @@
   min-height: 1.25em;
 }
 
+.onboarding__category-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--teal-light);
+  border: 1px solid rgba(61, 139, 122, 0.25);
+  animation: onboardingFadeIn 0.25s ease forwards;
+}
+
+.onboarding__category-badge {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+.onboarding__category-detail {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
 .onboarding__complete-list {
   list-style: none;
   margin: 0 0 28px;

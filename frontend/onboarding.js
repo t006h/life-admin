@@ -1,29 +1,21 @@
 /**
- * Life Admin — onboarding & first-use (60-second relief path)
+ * Life Admin — onboarding (landing → auth → add reminder → done)
  */
 (function () {
   const LS_COMPLETE = "life_admin_onboarding_v1";
-  const LS_STRESS = "life_admin_stress_focus";
   const LS_EMAIL = "life_admin_onboarding_email";
 
-  const STRESS_OPTIONS = [
-    { id: "family", label: "Family schedules", memoryTitle: "Stress focus: family", memoryBody: "Family schedules create the most stress — prioritize shared calendar and school reminders." },
-    { id: "bills", label: "Bills & finances", memoryTitle: "Stress focus: finances", memoryBody: "Bills and finances create the most stress — prioritize renewals and payment reminders." },
-    { id: "documents", label: "Documents", memoryTitle: "Stress focus: documents", memoryBody: "Documents create the most stress — prioritize vault, passport, and expiry tracking." },
-    { id: "household", label: "Household", memoryTitle: "Stress focus: household", memoryBody: "Household admin creates the most stress — prioritize movers, utilities, and shared tasks." },
-    { id: "everything", label: "Everything", memoryTitle: "Stress focus: everything", memoryBody: "A bit of everything creates stress — Life Admin will surface only what matters today." },
-  ];
-
-  const FIRST_EXAMPLES = [
-    "Renew my passport",
-    "Theo has a school trip",
-    "We're moving house",
+  const REMINDER_EXAMPLES = [
+    "MOT due in June",
+    "Passport expires March 2027",
+    "Netflix subscription £15.99",
+    "Council tax payment",
   ];
 
   let els = {};
   let handlers = {};
-  let selectedStress = null;
-  let pendingPlan = null;
+  let categorizeTimer = null;
+  let lastCategorized = null;
 
   function isComplete() {
     return localStorage.getItem(LS_COMPLETE) === "true";
@@ -49,21 +41,48 @@
   }
 
   function setStatus(text) {
-    if (els.firstUseStatus) els.firstUseStatus.textContent = text || "";
+    if (els.reminderStatus) els.reminderStatus.textContent = text || "";
   }
 
-  async function saveStressMemory(option) {
-    localStorage.setItem(LS_STRESS, option.id);
+  function formatDueDate(iso) {
+    if (!iso) return "";
     try {
-      await window.LifeAdminContextEngine?.saveMemory?.({
-        category: "preferences",
-        title: option.memoryTitle,
-        body: option.memoryBody,
-        source: "user",
+      return new Date(iso + "T12:00:00").toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
       });
-    } catch (e) {
-      console.warn("Stress memory save:", e.message);
+    } catch {
+      return iso;
     }
+  }
+
+  function updateCategoryPreview() {
+    const text = els.reminderInput?.value?.trim();
+    if (!text) {
+      lastCategorized = null;
+      if (els.reminderCategory) els.reminderCategory.hidden = true;
+      if (els.reminderSubmit) els.reminderSubmit.disabled = true;
+      return;
+    }
+
+    const result = window.LifeAdminIntentEngine?.categorizeReminder?.(text);
+    lastCategorized = result;
+    if (!result || !els.reminderCategory) return;
+
+    els.reminderCategory.hidden = false;
+    if (els.reminderCategoryLabel) {
+      els.reminderCategoryLabel.textContent = `${result.icon} ${result.label}`;
+    }
+    if (els.reminderCategoryDetail) {
+      els.reminderCategoryDetail.textContent = result.summary;
+    }
+    if (els.reminderSubmit) els.reminderSubmit.disabled = false;
+  }
+
+  function scheduleCategoryPreview() {
+    clearTimeout(categorizeTimer);
+    categorizeTimer = setTimeout(updateCategoryPreview, 200);
   }
 
   async function tryOAuth(provider) {
@@ -96,7 +115,8 @@
       els.emailInput?.focus();
       return;
     }
-    showStep("stress");
+    showStep("reminder");
+    els.reminderInput?.focus();
   }
 
   async function submitEmail(e) {
@@ -113,75 +133,22 @@
         console.warn("Email OTP:", err.message);
       }
     }
-    showStep("stress");
+    showStep("reminder");
+    els.reminderInput?.focus();
   }
 
-  function selectStress(option) {
-    selectedStress = option;
-    els.stressOptions?.forEach((btn) => {
-      btn.classList.toggle(
-        "onboarding__option--selected",
-        btn.dataset.stressId === option.id
-      );
-    });
-    els.stressContinue.disabled = false;
-  }
-
-  async function runFirstWorkflow(text) {
-    const parse = window.LifeAdminWorkflowEngine?.parseIntent;
-    if (!parse) throw new Error("Workflow engine not ready");
-
-    const result = parse(text);
-    if (!result?.plan || result.detection?.blueprintId === "generic") {
-      if (handlers.onAddTask) {
-        await handlers.onAddTask({
-          title: text,
-          dueDate: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
-          priority: "medium",
-        });
-      }
-      return {
-        workflowName: "Your first task",
-        tasks: 1,
-        reminders: 0,
-        checklist: 0,
-      };
-    }
-
-    pendingPlan = result.plan;
-    if (!handlers.onActivateWorkflow) {
-      return {
-        workflowName: plan.title,
-        tasks: plan.tasks?.length || 0,
-        reminders: plan.reminders?.length || 0,
-        checklist: plan.items?.filter((i) => i.kind === "checklist").length || 0,
-      };
-    }
-    const ev = await handlers.onActivateWorkflow(result.plan, { silent: true });
-    const plan = result.plan;
-    const checklist = plan.items?.filter((i) => i.kind === "checklist").length || 0;
-    return {
-      workflowName: plan.title,
-      tasks: plan.tasks?.length || 0,
-      reminders: plan.reminders?.length || 0,
-      checklist,
-      workflowId: ev?.id,
-    };
-  }
-
-  function showCompletion(stats) {
+  function showCompletion(result) {
     showStep("complete");
     if (els.completeTitle) {
-      els.completeTitle.textContent = `${stats.workflowName} is ready`;
+      els.completeTitle.textContent = "Reminder added";
     }
     if (els.completeSub) {
-      els.completeSub.textContent = "We've handled the setup — you can breathe now.";
+      els.completeSub.textContent = "We've sorted it — you're ready for Today.";
     }
     const rows = [
-      { label: "Workflow created", show: true },
-      { label: `${stats.checklist || 0} checklist steps`, show: (stats.checklist || 0) > 0 },
-      { label: `${stats.tasks} task${stats.tasks === 1 ? "" : "s"} added`, show: stats.tasks > 0 },
-      { label: `${stats.reminders} reminder${stats.reminders === 1 ? "" : "s"} set`, show: stats.reminders > 0 },
+      { label: result.summary, show: true },
+      { label: `Due ${formatDueDate(result.dueDate)}`, show: !!result.dueDate },
+      { label: "Saved to your reminders", show: true },
     ].filter((r) => r.show);
 
     if (els.completeList) {
@@ -195,26 +162,32 @@
     }
   }
 
-  async function submitFirstUse() {
-    const text = els.firstUseInput?.value?.trim();
+  async function submitReminder() {
+    const text = els.reminderInput?.value?.trim();
     if (!text) return;
 
-    localStorage.setItem("life_admin_first_intent", text);
-    els.firstUseSubmit.disabled = true;
-    setStatus("Creating your workflow…");
+    const result = window.LifeAdminIntentEngine?.categorizeReminder?.(text);
+    if (!result) return;
+
+    els.reminderSubmit.disabled = true;
+    setStatus("Adding your reminder…");
 
     try {
-      if (!handlers.onActivateWorkflow) {
-        await new Promise((r) => setTimeout(r, 800));
+      if (handlers.onCreateReminder) {
+        await handlers.onCreateReminder(result.category, {
+          title: result.title,
+          dueDate: result.dueDate,
+          subtitle: "",
+          notes: "",
+        });
       }
-      const stats = await runFirstWorkflow(text);
-      setStatus("Almost done…");
-      await new Promise((r) => setTimeout(r, 600));
-      showCompletion(stats);
+      localStorage.setItem("life_admin_first_intent", text);
+      setStatus("");
+      showCompletion(result);
     } catch (err) {
       setStatus("");
-      alert(err.message || "Could not set up — try again");
-      els.firstUseSubmit.disabled = false;
+      alert(err.message || "Could not save — try again");
+      els.reminderSubmit.disabled = false;
     }
   }
 
@@ -225,37 +198,28 @@
 
   function bind() {
     els.getStarted?.addEventListener("click", () => showStep("auth"));
-    els.skipAuth?.addEventListener("click", () => showStep("stress"));
+    els.skipAuth?.addEventListener("click", () => {
+      showStep("reminder");
+      els.reminderInput?.focus();
+    });
 
     els.authGoogle?.addEventListener("click", () => continueAuth("google"));
     els.authApple?.addEventListener("click", () => continueAuth("apple"));
     els.authEmail?.addEventListener("click", () => continueAuth("email"));
     els.emailForm?.addEventListener("submit", submitEmail);
 
-    els.stressOptions?.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const opt = STRESS_OPTIONS.find((o) => o.id === btn.dataset.stressId);
-        if (opt) selectStress(opt);
-      });
-    });
-
-    els.stressContinue?.addEventListener("click", async () => {
-      if (!selectedStress) return;
-      await saveStressMemory(selectedStress);
-      showStep("first-use");
-      els.firstUseInput?.focus();
-    });
-
-    els.firstUseForm?.addEventListener("submit", (e) => {
+    els.reminderInput?.addEventListener("input", scheduleCategoryPreview);
+    els.reminderForm?.addEventListener("submit", (e) => {
       e.preventDefault();
-      submitFirstUse();
+      submitReminder();
     });
 
     els.exampleChips?.forEach((chip) => {
       chip.addEventListener("click", () => {
-        if (els.firstUseInput) {
-          els.firstUseInput.value = chip.textContent;
-          els.firstUseInput.focus();
+        if (els.reminderInput) {
+          els.reminderInput.value = chip.textContent;
+          updateCategoryPreview();
+          els.reminderInput.focus();
         }
       });
     });
@@ -277,6 +241,7 @@
     document.body.classList.remove("onboarding-done");
     if (els.shell) els.shell.hidden = false;
     showStep("landing");
+    if (els.reminderSubmit) els.reminderSubmit.disabled = true;
     return true;
   }
 
@@ -289,10 +254,9 @@
     isComplete,
     markComplete,
     shouldGateApp,
-    STRESS_OPTIONS,
     resetForDev: () => {
       localStorage.removeItem(LS_COMPLETE);
-      localStorage.removeItem(LS_STRESS);
+      localStorage.removeItem("life_admin_stress_focus");
     },
   };
 })();
