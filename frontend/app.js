@@ -390,6 +390,19 @@ function setFabOpen(open) {
   uiEls.fabAdd.setAttribute("aria-expanded", open ? "true" : "false");
 }
 
+function setIntentPanelOpen(open) {
+  const panel = document.getElementById("intentHeroFab");
+  if (!panel || !uiEls.fabAdd) return;
+  panel.hidden = !open;
+  panel.classList.toggle("is-open", open);
+  uiEls.fabAdd.classList.toggle("is-open", open);
+  uiEls.fabAdd.setAttribute("aria-expanded", open ? "true" : "false");
+  if (open) {
+    setFabOpen(false);
+    setTimeout(() => document.getElementById("intentInput")?.focus(), 80);
+  }
+}
+
 function toggleFilterPanel(which) {
   const showTasks = which === "tasks";
   const showUpcoming = which === "upcoming";
@@ -1108,11 +1121,13 @@ function switchView(view) {
   const fabDock = document.getElementById("fabDock");
   const vaultFabDock = document.getElementById("vaultFabDock");
   const familyFabDock = document.getElementById("familyFabDock");
-  if (fabDock) fabDock.hidden = true;
+  const onToday = view === "dashboard";
+  if (fabDock) fabDock.hidden = !onToday;
   if (vaultFabDock) vaultFabDock.hidden = view !== "vault";
   if (familyFabDock) familyFabDock.hidden = view !== "family" || !window.LifeAdminFamily?.canUseFamily?.();
 
   setFabOpen(false);
+  if (!onToday) setIntentPanelOpen(false);
   window.LifeAdminVault?.setVaultFabOpen?.(false);
 }
 
@@ -1269,6 +1284,11 @@ function bindAppUiEventsOnce() {
   });
 
   uiEls.fabAdd?.addEventListener("click", () => {
+    const panel = document.getElementById("intentHeroFab");
+    if (panel) {
+      setIntentPanelOpen(panel.hidden);
+      return;
+    }
     const open = uiEls.fabMenu && !uiEls.fabMenu.hidden;
     setFabOpen(!open);
   });
@@ -1289,6 +1309,10 @@ function bindAppUiEventsOnce() {
   });
 
   document.addEventListener("click", (e) => {
+    const panel = document.getElementById("intentHeroFab");
+    if (panel && !panel.hidden && !e.target.closest(".fab-wrap")) {
+      setIntentPanelOpen(false);
+    }
     if (uiEls.fabMenu?.classList.contains("is-open") && !e.target.closest(".fab-wrap")) {
       setFabOpen(false);
     }

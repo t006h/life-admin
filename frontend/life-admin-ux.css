@@ -54,13 +54,8 @@
   margin-top: 12px;
 }
 
-.intent-hero--today {
-  margin: 16px 0 20px;
-  padding: 20px 18px;
-  background: var(--surface);
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+.intent-hero--today.intent-hero--fab-panel {
+  margin: 0;
 }
 
 .intent-form--hero .intent-form__row {

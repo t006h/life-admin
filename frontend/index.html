@@ -10,11 +10,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260524e">
+  <link rel="stylesheet" href="style.css?v=20260524h">
   <link rel="stylesheet" href="os-theme.css?v=20260524e">
   <link rel="stylesheet" href="onboarding.css?v=20260524e">
   <link rel="stylesheet" href="deploy.css?v=20260524e">
-  <link rel="stylesheet" href="life-admin-ux.css?v=20260524e">
+  <link rel="stylesheet" href="life-admin-ux.css?v=20260524h">
   <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="manifest" href="/manifest.webmanifest">
@@ -150,33 +150,6 @@
               <ul class="insight-list" id="briefingInsightsTop"></ul>
             </div>
           </article>
-
-          <section class="intent-hero intent-hero--today" aria-label="What do you need help with?">
-            <h2 class="intent-hero__title">What do you need help with?</h2>
-            <form class="intent-form intent-form--hero" id="intentForm">
-              <label class="intent-form__label visually-hidden" for="intentInput">Your request</label>
-              <div class="intent-form__row">
-                <input type="text" class="intent-form__input" id="intentInput" name="intent" placeholder="Add a reminder or task" autocomplete="off" enterkeyhint="go">
-                <button type="submit" class="intent-form__submit" id="intentSubmit">Go</button>
-              </div>
-            </form>
-            <article class="intent-result" id="intentResult" hidden>
-              <div class="intent-result__head">
-                <span class="intent-result__icon" id="intentResultIcon" aria-hidden="true">✨</span>
-                <p class="intent-result__summary" id="intentResultSummary"></p>
-              </div>
-              <p class="intent-plan-meta" id="intentPlanMeta" hidden></p>
-              <div class="intent-actions" id="intentActions"></div>
-              <section class="wf-context-section" id="intentContextSection" hidden>
-                <h3 class="wf-forget-section__title">Using your context</h3>
-                <ul class="wf-context-list" id="intentContextList"></ul>
-              </section>
-              <section class="wf-forget-section" id="intentForgetSection" hidden>
-                <h3 class="wf-forget-section__title">What might I be forgetting?</h3>
-                <ul class="wf-forget-list" id="intentForgetting"></ul>
-              </section>
-            </article>
-          </section>
 
           <div class="os-quick-actions" id="todayQuickActions" aria-label="Quick actions"></div>
 
@@ -729,35 +702,40 @@
       </section>
     </main>
 
-    <!-- FAB dock (hidden in intent-first UI; use natural language on Today) -->
-    <div class="fab-dock fab-dock--hidden" id="fabDock" hidden>
-      <button type="button" class="filter-pill" id="filterTasks" data-filter="tasks">
-        <span class="filter-pill__icon">✓</span>
-        <span>Tasks</span>
-        <span class="filter-pill__chev">▾</span>
-      </button>
-      <div class="fab-wrap">
-        <div class="fab-menu" id="fabMenu" role="menu" hidden aria-hidden="true">
-          <button type="button" class="fab-menu__item" data-quick="task" role="menuitem">
-            <span class="fab-menu__icon fab-menu__icon--green">✓</span> Add Task
-          </button>
-          <button type="button" class="fab-menu__item" data-quick="reminder" role="menuitem">
-            <span class="fab-menu__icon fab-menu__icon--purple">🔔</span> Add Reminder
-          </button>
-          <button type="button" class="fab-menu__item" data-quick="braindump" role="menuitem">
-            <span class="fab-menu__icon fab-menu__icon--orange">💡</span> Brain Dump
-          </button>
-        </div>
-        <button type="button" class="fab" id="fabAdd" aria-label="Quick actions" aria-expanded="false">
+    <!-- Today FAB: + opens intent input -->
+    <div class="fab-dock fab-dock--intent" id="fabDock" hidden>
+      <div class="fab-wrap fab-wrap--intent">
+        <section class="intent-hero intent-hero--today intent-hero--fab-panel" id="intentHeroFab" hidden aria-label="What do you need help with?">
+          <h2 class="intent-hero__title">What do you need help with?</h2>
+          <form class="intent-form intent-form--hero" id="intentForm">
+            <label class="intent-form__label visually-hidden" for="intentInput">Your request</label>
+            <div class="intent-form__row">
+              <input type="text" class="intent-form__input" id="intentInput" name="intent" placeholder="Add a reminder or task" autocomplete="off" enterkeyhint="go">
+              <button type="submit" class="intent-form__submit" id="intentSubmit">Go</button>
+            </div>
+          </form>
+          <article class="intent-result" id="intentResult" hidden>
+            <div class="intent-result__head">
+              <span class="intent-result__icon" id="intentResultIcon" aria-hidden="true">✨</span>
+              <p class="intent-result__summary" id="intentResultSummary"></p>
+            </div>
+            <p class="intent-plan-meta" id="intentPlanMeta" hidden></p>
+            <div class="intent-actions" id="intentActions"></div>
+            <section class="wf-context-section" id="intentContextSection" hidden>
+              <h3 class="wf-forget-section__title">Using your context</h3>
+              <ul class="wf-context-list" id="intentContextList"></ul>
+            </section>
+            <section class="wf-forget-section" id="intentForgetSection" hidden>
+              <h3 class="wf-forget-section__title">What might I be forgetting?</h3>
+              <ul class="wf-forget-list" id="intentForgetting"></ul>
+            </section>
+          </article>
+        </section>
+        <button type="button" class="fab" id="fabAdd" aria-label="Add a reminder or task" aria-expanded="false" aria-controls="intentHeroFab">
           <span class="fab__icon fab__icon--plus">+</span>
           <span class="fab__icon fab__icon--close">×</span>
         </button>
       </div>
-      <button type="button" class="filter-pill" id="filterUpcoming" data-filter="upcoming">
-        <span class="filter-pill__icon">📅</span>
-        <span>Upcoming</span>
-        <span class="filter-pill__chev">▾</span>
-      </button>
     </div>
 
     <!-- Family FAB (Family tab only) -->
@@ -1231,6 +1209,6 @@
   <script src="notifications-center.js?v=20260522"></script>
   <script src="tasks.js?v=20260524d"></script>
   <script src="today.js?v=20260523"></script>
-  <script src="app.js?v=20260524g"></script>
+  <script src="app.js?v=20260524h"></script>
 </body>
 </html>

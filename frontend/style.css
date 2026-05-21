@@ -2105,14 +2105,56 @@ body {
   font-size: 0.9375rem;
 }
 
-/* Intent-first UI */
-.app--intent-first .fab-dock--hidden,
-.app--intent-first #fabDock[hidden] {
-  display: none !important;
+.screen-scroll--today {
+  padding-bottom: calc(var(--tab-h) + var(--safe-b) + 72px);
 }
 
-.screen-scroll--today {
-  padding-bottom: calc(var(--tab-h) + var(--safe-b) + 20px);
+.fab-dock--intent {
+  justify-content: center;
+}
+
+.fab-wrap--intent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.intent-hero--fab-panel {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100vw - 32px, 398px);
+  margin: 0;
+  padding: 18px 16px;
+  background: var(--surface);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: none;
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.intent-hero--fab-panel.is-open,
+.intent-hero--fab-panel:not([hidden]) {
+  display: block;
+  visibility: visible;
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.intent-hero--fab-panel .intent-hero__title {
+  font-size: 1.125rem;
+  margin-bottom: 12px;
+}
+
+.intent-hero--fab-panel .intent-form--hero .intent-form__input {
+  text-align: left;
 }
 
 .intent-hero {
