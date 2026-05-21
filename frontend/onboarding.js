@@ -313,8 +313,8 @@
   }
 
   function addAnother() {
+    resetIntake();
     showStep("intake");
-    if (els.clarifySave) els.clarifySave.disabled = false;
     els.intentInput?.focus();
   }
 
