@@ -144,6 +144,7 @@ async function loadFromSupabase() {
 
 async function upsertItem(category, item) {
   const client = getClient();
+  if (!client) return;
   let row = itemToRow(item, category);
   let { error } = await client.from(TABLE).upsert(row);
   if (error && /vault_document_id/.test(error.message || "")) {
@@ -1852,6 +1853,7 @@ async function enterMainApp() {
   }
   try {
     await ensureAppBooted();
+    await renderAll();
   } catch (err) {
     window.LifeAdminDeploy?.showFatalError?.(
       "Could not load your data",
@@ -1893,6 +1895,7 @@ async function runStartApplication() {
       shell,
       screens,
       getStarted: document.getElementById("onboardingGetStarted"),
+      tryExample: document.getElementById("onboardingTryExample"),
       authGoogle: document.getElementById("onboardingAuthGoogle"),
       authApple: document.getElementById("onboardingAuthApple"),
       authEmail: document.getElementById("onboardingAuthEmail"),
@@ -1917,13 +1920,12 @@ async function runStartApplication() {
     {
       onEnterApp: enterMainApp,
       onCreateReminder: async (category, item) => {
-        if (!getClient()) return;
         await createReminderFromWorkflow(category, item);
       },
       onCreateTask: async (item) => {
-        if (!getClient()) return;
         await window.LifeAdminTasks.createTaskQuick(item);
       },
+      onActivateWorkflow: workflowIntentHandlers.onActivateWorkflow,
     }
   );
 
@@ -1935,9 +1937,8 @@ async function runStartApplication() {
 
   window.LifeAdminDeploy?.hideLoader?.();
   document.querySelector(".app")?.classList.add("app--gated");
-  ensureAppBooted().catch((err) => {
-    console.warn("Background preload:", err.message);
-    window.LifeAdminDeploy?.hideLoader?.();
+  window.LifeAdminProfile?.initUserContext?.().catch((err) => {
+    console.warn("Profile preload:", err.message);
   });
 }
 

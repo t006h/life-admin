@@ -298,6 +298,23 @@
     els.intentInput?.focus();
   }
 
+  function tryExample(text = EXAMPLES[0]) {
+    showStep("intake");
+    refreshUserName();
+    if (els.intentInput) {
+      els.intentInput.value = text;
+      onIntentInput();
+      els.intentInput.focus();
+    }
+  }
+
+  function forceShowFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("onboarding") !== "1") return false;
+    localStorage.removeItem(LS_COMPLETE);
+    return true;
+  }
+
   async function finishAndEnterApp() {
     markComplete();
     if (handlers.onEnterApp) await handlers.onEnterApp();
@@ -305,6 +322,7 @@
 
   function bind() {
     els.getStarted?.addEventListener("click", () => showStep("auth"));
+    els.tryExample?.addEventListener("click", () => tryExample());
     els.skipAuth?.addEventListener("click", () => {
       showStep("intake");
       els.intentInput?.focus();
@@ -328,6 +346,8 @@
     bind();
     renderExamples();
 
+    forceShowFromQuery();
+
     if (isComplete()) {
       document.body.classList.add("onboarding-done");
       if (els.shell) els.shell.hidden = true;
@@ -345,6 +365,7 @@
     onInput: scheduleIntentInput,
     isComplete,
     markComplete,
+    tryExample,
     resetForDev: () => {
       localStorage.removeItem(LS_COMPLETE);
     },

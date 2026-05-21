@@ -168,6 +168,7 @@
 
   async function saveTask(task) {
     const client = getClient();
+    if (!client) return;
     const { error } = await client.from(TABLE).upsert(taskToRow(task));
     if (error) throw error;
   }
