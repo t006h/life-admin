@@ -4,6 +4,7 @@
 (function () {
   const LS_COMPLETE = "life_admin_onboarding_v1";
   const LS_EMAIL = "life_admin_onboarding_email";
+  const MIN_INPUT_CHARS = 3;
 
   let els = {};
   let handlers = {};
@@ -33,7 +34,7 @@
     });
     if (name === "reminder") {
       refreshUserDisplayName();
-      showEntryPhase();
+      resetReminderStep();
     }
   }
 
@@ -77,70 +78,127 @@
     }
   }
 
-  function showEntryPhase() {
+  function classifyInput(text) {
+    if (window.LifeAdminIntentEngine?.classifyOnboardingInput) {
+      return window.LifeAdminIntentEngine.classifyOnboardingInput(text);
+    }
+    const t = String(text || "").trim();
+    if (!t) return null;
+    const lower = t.toLowerCase();
+    if (/\b(task|todo|remember to|need to)\b/i.test(lower) && !/\b(mot|passport|bill|remind)\b/i.test(lower)) {
+      return {
+        kind: "task",
+        title: t,
+        dueDate: new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10),
+        icon: "✓",
+        label: "Task",
+        summary: "We'll add this as a task",
+        category: "general",
+      };
+    }
+    let category = "bills";
+    let label = "Bill";
+    let icon = "£";
+    if (/passport|visa/.test(lower)) {
+      category = "passport";
+      label = "Passport";
+      icon = "🛂";
+    } else if (/mot|garage|car/.test(lower)) {
+      category = "mot";
+      label = "MOT";
+      icon = "🚗";
+    } else if (/subscription|netflix|spotify/.test(lower)) {
+      category = "subscriptions";
+      label = "Subscription";
+      icon = "💳";
+    }
+    return {
+      kind: "reminder",
+      category,
+      title: t,
+      dueDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+      icon,
+      label,
+      summary: `Sorted as ${icon} ${label}`,
+    };
+  }
+
+  function resetReminderStep() {
     pendingEntry = null;
-    if (els.entryPhase) els.entryPhase.hidden = false;
-    if (els.detailsPhase) els.detailsPhase.hidden = true;
-    if (els.reminderCategory) els.reminderCategory.hidden = true;
-    if (els.reminderContinue) els.reminderContinue.disabled = true;
+    if (els.reminderInput) els.reminderInput.value = "";
+    hideInlinePrompt();
     setStatus("");
   }
 
-  function showDetailsPhase(classified) {
-    pendingEntry = classified;
-    if (els.entryPhase) els.entryPhase.hidden = true;
-    if (els.detailsPhase) els.detailsPhase.hidden = false;
+  function hideInlinePrompt() {
+    if (els.livePrompt) els.livePrompt.hidden = true;
+    if (els.detailsPhase) els.detailsPhase.hidden = true;
+    if (els.detailsSave) els.detailsSave.disabled = false;
+  }
 
-    const isReminder = classified.kind === "reminder";
-    if (els.detailsLead) {
-      els.detailsLead.textContent = isReminder
-        ? `Add details for your ${classified.label} reminder`
-        : "Add details for your task";
+  function showInlinePrompt(result) {
+    pendingEntry = result;
+    const isReminder = result.kind === "reminder";
+
+    if (els.livePrompt) {
+      els.livePrompt.hidden = false;
+      if (els.promptText) {
+        els.promptText.textContent = isReminder
+          ? `This looks like a ${result.label} reminder`
+          : "This looks like a task";
+      }
+      if (els.promptSub) {
+        els.promptSub.textContent = isReminder
+          ? "Add a due date and any extra details below."
+          : "Add a due date and priority below.";
+      }
     }
-    if (els.detailTitleLabel) {
-      els.detailTitleLabel.textContent = isReminder ? "Reminder" : "Task";
+
+    if (els.detailsPhase) {
+      els.detailsPhase.hidden = false;
+      if (els.detailsLead) {
+        els.detailsLead.textContent = isReminder
+          ? `${result.icon} ${result.label} reminder`
+          : `${result.icon} Task`;
+      }
+      if (els.detailTitleLabel) {
+        els.detailTitleLabel.textContent = isReminder ? "Reminder" : "Task";
+      }
+      if (els.detailTitle) els.detailTitle.value = result.title || "";
+      if (els.detailDueDate) {
+        els.detailDueDate.value = result.dueDate || "";
+        els.detailDueDate.min = new Date().toISOString().slice(0, 10);
+      }
+      if (els.detailPriorityWrap) els.detailPriorityWrap.hidden = isReminder;
+      if (els.detailNotesWrap) els.detailNotesWrap.hidden = !isReminder;
+      if (els.detailsSave) {
+        els.detailsSave.textContent = isReminder ? "Save reminder" : "Save task";
+        els.detailsSave.disabled = false;
+      }
     }
-    if (els.detailTitle) els.detailTitle.value = classified.title || "";
-    if (els.detailDueDate) els.detailDueDate.value = classified.dueDate || "";
-    if (els.detailPriorityWrap) els.detailPriorityWrap.hidden = isReminder;
-    if (els.detailNotesWrap) els.detailNotesWrap.hidden = !isReminder;
-    if (els.detailNotes) els.detailNotes.value = "";
-    if (els.detailsSave) {
-      els.detailsSave.textContent = isReminder ? "Save reminder" : "Save task";
-    }
-    els.detailTitle?.focus();
   }
 
   function updateCategoryPreview() {
     const text = els.reminderInput?.value?.trim();
-    if (!text) {
+    if (!text || text.length < MIN_INPUT_CHARS) {
       pendingEntry = null;
-      if (els.reminderCategory) els.reminderCategory.hidden = true;
-      if (els.reminderContinue) els.reminderContinue.disabled = true;
+      hideInlinePrompt();
       return;
     }
 
-    const result = window.LifeAdminIntentEngine?.classifyOnboardingInput?.(text);
-    pendingEntry = result;
-    if (!result || !els.reminderCategory) return;
+    const result = classifyInput(text);
+    if (!result) {
+      hideInlinePrompt();
+      return;
+    }
 
-    els.reminderCategory.hidden = false;
-    if (els.reminderCategoryLabel) {
-      const kindLabel = result.kind === "task" ? "Task" : "Reminder";
-      els.reminderCategoryLabel.textContent =
-        result.kind === "reminder"
-          ? `${result.icon} ${kindLabel} · ${result.label}`
-          : `${result.icon} ${kindLabel}`;
-    }
-    if (els.reminderCategoryDetail) {
-      els.reminderCategoryDetail.textContent = result.summary;
-    }
-    if (els.reminderContinue) els.reminderContinue.disabled = false;
+    localStorage.setItem("life_admin_first_intent", text);
+    showInlinePrompt(result);
   }
 
   function scheduleCategoryPreview() {
     clearTimeout(categorizeTimer);
-    categorizeTimer = setTimeout(updateCategoryPreview, 200);
+    categorizeTimer = setTimeout(updateCategoryPreview, 150);
   }
 
   async function tryOAuth(provider) {
@@ -209,10 +267,7 @@
       els.completeSub.textContent = "You're ready for Today.";
     }
     const rows = [
-      {
-        label: isReminder ? saved.summary : "Saved as a task",
-        show: true,
-      },
+      { label: isReminder ? saved.summary : "Saved as a task", show: true },
       { label: `Due ${formatDueDate(saved.dueDate)}`, show: !!saved.dueDate },
       {
         label: isReminder ? "Saved to your reminders" : "Saved to your tasks",
@@ -231,26 +286,19 @@
     }
   }
 
-  function proceedToDetails(e) {
-    e?.preventDefault();
-    const text = els.reminderInput?.value?.trim();
-    if (!text) return;
-
-    const result =
-      pendingEntry || window.LifeAdminIntentEngine?.classifyOnboardingInput?.(text);
-    if (!result) return;
-
-    localStorage.setItem("life_admin_first_intent", text);
-    showDetailsPhase(result);
-  }
-
   async function saveDetails(e) {
     e?.preventDefault();
-    if (!pendingEntry) return;
+    if (!pendingEntry) {
+      updateCategoryPreview();
+      if (!pendingEntry) return;
+    }
 
     const title = els.detailTitle?.value?.trim();
     const dueDate = els.detailDueDate?.value;
-    if (!title || !dueDate) return;
+    if (!title || !dueDate) {
+      setStatus("Please add a title and due date.");
+      return;
+    }
 
     els.detailsSave.disabled = true;
     setStatus("Saving…");
@@ -304,9 +352,17 @@
     els.emailForm?.addEventListener("submit", submitEmail);
 
     els.reminderInput?.addEventListener("input", scheduleCategoryPreview);
-    els.reminderForm?.addEventListener("submit", proceedToDetails);
+    els.reminderInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && pendingEntry) {
+        e.preventDefault();
+        els.detailDueDate?.focus();
+      }
+    });
     els.detailsForm?.addEventListener("submit", saveDetails);
-    els.detailsBack?.addEventListener("click", showEntryPhase);
+    els.detailsBack?.addEventListener("click", () => {
+      hideInlinePrompt();
+      els.reminderInput?.focus();
+    });
 
     els.enterApp?.addEventListener("click", finishAndEnterApp);
   }
@@ -325,7 +381,6 @@
     document.body.classList.remove("onboarding-done");
     if (els.shell) els.shell.hidden = false;
     showStep("landing");
-    if (els.reminderContinue) els.reminderContinue.disabled = true;
     return true;
   }
 

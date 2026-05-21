@@ -66,14 +66,13 @@
       <h2 class="onboarding__headline onboarding__headline--step" id="onboardingUserName">there</h2>
       <div class="onboarding__intent onboarding__intent--centered">
         <div class="onboarding__entry" id="onboardingEntryPhase">
-          <form class="onboarding__intent-form" id="onboardingReminderForm">
-            <input type="text" class="onboarding__intent-input onboarding__intent-input--hero" id="onboardingReminderInput" placeholder="add a task or a reminder" autocomplete="off" enterkeyhint="go" required aria-label="add a task or a reminder">
-            <div class="onboarding__category-preview" id="onboardingReminderCategory" hidden aria-live="polite">
-              <span class="onboarding__category-badge" id="onboardingReminderCategoryLabel"></span>
-              <span class="onboarding__category-detail" id="onboardingReminderCategoryDetail"></span>
-            </div>
-            <button type="submit" class="onboarding__cta" id="onboardingReminderContinue" disabled>Continue</button>
-          </form>
+          <div class="onboarding__intent-form">
+            <input type="text" class="onboarding__intent-input onboarding__intent-input--hero" id="onboardingReminderInput" placeholder="add a task or a reminder" autocomplete="off" enterkeyhint="done" aria-label="add a task or a reminder">
+          </div>
+          <div class="onboarding__live-prompt" id="onboardingLivePrompt" hidden aria-live="polite">
+            <p class="onboarding__live-prompt-text" id="onboardingPromptText"></p>
+            <p class="onboarding__live-prompt-sub" id="onboardingPromptSub"></p>
+          </div>
         </div>
         <div class="onboarding__details" id="onboardingDetailsPhase" hidden>
           <p class="onboarding__details-lead" id="onboardingDetailsLead">Add a few details</p>
@@ -1225,7 +1224,8 @@
   <script src="family.js?v=20260521"></script>
   <script src="planning-ai.js?v=20260523"></script>
   <script src="planning.js?v=20260523"></script>
-  <script src="onboarding.js?v=20260521d"></script>
+  <script src="intent-engine.js?v=20260521e"></script>
+  <script src="onboarding.js?v=20260521e"></script>
   <script src="os-core.js?v=20260529"></script>
   <script src="os-bindings.js?v=20260529"></script>
   <script src="action-engine.js?v=20260528"></script>
@@ -1240,7 +1240,6 @@
   <script src="life-events-ai.js?v=20260526"></script>
   <script src="workflow-definitions.js?v=20260526"></script>
   <script src="workflow-engine.js?v=20260526"></script>
-  <script src="intent-engine.js?v=20260521d"></script>
   <script src="workflow-ui.js?v=20260526"></script>
   <script src="life-events.js?v=20260526"></script>
   <script src="notifications-center.js?v=20260522"></script>
