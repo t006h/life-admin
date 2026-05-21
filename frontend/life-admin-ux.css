@@ -2,10 +2,6 @@
  * Life Admin — UX v2 (calm, mobile-first)
  */
 
-.app-bar--no-menu .account-chip--header {
-  display: none !important;
-}
-
 .app-bar__center--global {
   display: block;
   text-align: left;
@@ -215,4 +211,29 @@
   margin: 0 0 4px;
   font-size: 0.875rem;
   color: var(--text-muted);
+}
+
+.profile-panel__upgrade {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--teal);
+  border-radius: 12px;
+  background: var(--teal-light);
+  color: var(--teal-dark);
+  font-family: var(--font);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+
+.profile-panel__upgrade:active {
+  opacity: 0.85;
+}
+
+/* Plan + upgrade only in side menu Profile section */
+.account-chip--header {
+  display: none !important;
 }

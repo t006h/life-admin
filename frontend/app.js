@@ -514,18 +514,14 @@ function renderProfilePanel(nav) {
   panel.innerHTML = `
     <p class="profile-panel__plan">${Access().getPublicPlanLabel(plan)}</p>
     <p class="profile-panel__row">${escapeHtml(fullName || "—")}</p>
-    <p class="profile-panel__row">${escapeHtml(email || "—")}</p>`;
-  const upgrade = document.createElement("button");
-  upgrade.type = "button";
-  upgrade.className = "side-menu__link";
-  upgrade.textContent = "Upgrade";
-  upgrade.addEventListener("click", () => {
+    <p class="profile-panel__row">${escapeHtml(email || "—")}</p>
+    <button type="button" class="profile-panel__upgrade" id="sideMenuUpgrade">Upgrade</button>`;
+  panel.querySelector("#sideMenuUpgrade")?.addEventListener("click", () => {
     uiEls.sideMenu?.close();
     window.LifeAdminSubscriptions?.showUpgrade?.(
       plan === Access().PLANS.FREE ? "workflows" : "book_for_me"
     );
   });
-  panel.appendChild(upgrade);
   nav.appendChild(panel);
 }
 
@@ -539,7 +535,7 @@ function renderSideMenu() {
     nav: "life-events",
     feature: "workflows",
   });
-  addMenuLink(uiEls.sideMenuNav, { label: "Calendar", nav: "planning", feature: "weekly_planning" });
+  addMenuLink(uiEls.sideMenuNav, { label: "Calendar", nav: "planning" });
   addMenuLink(uiEls.sideMenuNav, {
     label: "Family activities",
     nav: "family",
@@ -603,12 +599,7 @@ function showUpgradeAlert(categoryOrFeature) {
 }
 
 function renderAccountChip() {
-  const { plan, fullName } = Access().getUserContext();
-  const planLabel = Access().getPublicPlanLabel(plan);
-  els.accountPlan.textContent = fullName ? `${planLabel}` : planLabel;
-  els.accountChip.classList.remove("account-chip--founder");
-  els.accountChip.hidden = false;
-  els.accountChip.title = `${planLabel} plan`;
+  if (els.accountChip) els.accountChip.hidden = true;
 }
 
 function renderFounderFlags() {
@@ -1068,16 +1059,6 @@ function switchView(view) {
     });
     syncTabBarForView(view);
     renderLifeEvents();
-    hideFabDocks();
-    return;
-  }
-  if (view === "planning" && !window.LifeAdminPlanning?.canUsePlanning?.()) {
-    currentView = view;
-    $$(".view").forEach((el) => {
-      el.classList.toggle("view--active", el.dataset.view === view);
-    });
-    syncTabBarForView(view);
-    renderPlanning();
     hideFabDocks();
     return;
   }

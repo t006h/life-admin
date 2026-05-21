@@ -16,8 +16,8 @@
       chief: false,
     },
     weekly_planning: {
-      name: "Weekly planning",
-      premium: true,
+      name: "Calendar",
+      premium: false,
       chief: false,
     },
     smart_suggestions: {
