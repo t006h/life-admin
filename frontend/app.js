@@ -1420,7 +1420,6 @@ async function init() {
 
   window.LifeAdminTodayOS.init(
     {
-      quickActions: document.getElementById("todayQuickActions"),
       remindersStrip: document.getElementById("todayRemindersStrip"),
       remindersList: document.getElementById("todayRemindersList"),
       remindersMore: document.getElementById("todayRemindersMore"),
