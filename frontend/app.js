@@ -441,9 +441,23 @@ function firstNameFromContext() {
 }
 
 function renderGlobalHeader() {
-  if (briefingEls.globalHeaderGreeting) {
-    briefingEls.globalHeaderGreeting.textContent = `Hi ${firstNameFromContext()} 👋`;
+  const showWelcome =
+    !window.LifeAdminOnboarding?.isComplete?.() &&
+    localStorage.getItem("life_admin_first_task_done") !== "true";
+  const greeting = briefingEls.globalHeaderGreeting;
+  const tagline = document.getElementById("globalHeaderTagline");
+  const center = document.querySelector(".app-bar__center--global");
+  if (greeting) {
+    greeting.hidden = !showWelcome;
+    if (showWelcome) greeting.textContent = `Hi ${firstNameFromContext()} 👋`;
   }
+  if (tagline) tagline.hidden = !showWelcome;
+  if (center) center.hidden = !showWelcome;
+}
+
+function markFirstTaskEntryDone() {
+  localStorage.setItem("life_admin_first_task_done", "true");
+  renderGlobalHeader();
 }
 
 function configureMainTabBar(view) {
@@ -1949,6 +1963,7 @@ window.LifeAdminApp = {
   openEditModal,
   refreshNotificationCenter,
   enterMainApp,
+  markFirstTaskEntryDone,
   showError: showAppError,
   openProfile: () => {
     uiEls.sideMenu?.showModal();
@@ -1957,6 +1972,7 @@ window.LifeAdminApp = {
   resetOnboarding: () => {
     window.LifeAdminOnboarding?.resetForDev?.();
     localStorage.removeItem("life_admin_first_intent");
+    localStorage.removeItem("life_admin_first_task_done");
     location.reload();
   },
 };

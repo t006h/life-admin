@@ -4,6 +4,7 @@
 (function () {
   const LS_COMPLETE = "life_admin_onboarding_v1";
   const LS_EMAIL = "life_admin_onboarding_email";
+  const LS_FIRST_TASK = "life_admin_first_task_done";
   const EXAMPLES = [
     "MOT for my BMW",
     "Theo has a school trip",
@@ -224,6 +225,8 @@
       }
 
       lastSaved = result;
+      localStorage.setItem(LS_FIRST_TASK, "true");
+      window.LifeAdminApp?.markFirstTaskEntryDone?.();
       showComplete(result);
     } catch (err) {
       alert(err.message || "Could not save");
@@ -370,6 +373,7 @@
     tryExample,
     resetForDev: () => {
       localStorage.removeItem(LS_COMPLETE);
+      localStorage.removeItem(LS_FIRST_TASK);
     },
   };
 })();

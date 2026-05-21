@@ -36,6 +36,31 @@
   white-space: nowrap;
 }
 
+/* Welcome copy only during first task entry (onboarding), not on Today */
+body.onboarding-done .app-bar__center--global {
+  display: none;
+}
+
+body.onboarding-done .app-bar {
+  padding-top: max(8px, env(safe-area-inset-top, 0px));
+  padding-bottom: 0;
+  min-height: 0;
+}
+
+.onboarding__tagline {
+  margin: 0 0 20px;
+  padding: 0 8px;
+  max-width: 100%;
+  font-size: clamp(0.6875rem, 2.8vw, 0.875rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 #accountRole {
   display: none !important;
 }
