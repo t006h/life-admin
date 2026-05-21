@@ -107,10 +107,13 @@
 
     <section class="onboarding__screen" data-onboarding-step="complete" hidden>
       <p class="onboarding__logo">Done</p>
-      <h2 class="onboarding__headline" id="onboardingCompleteTitle" style="font-size:1.5rem">You're set up</h2>
-      <p class="onboarding__sub" id="onboardingCompleteSub">We've handled the admin — you can breathe now.</p>
+      <h2 class="onboarding__headline" id="onboardingCompleteTitle" style="font-size:1.5rem">Reminder added</h2>
+      <p class="onboarding__sub" id="onboardingCompleteSub">Add another, or head to Today.</p>
       <ul class="onboarding__complete-list" id="onboardingCompleteList"></ul>
-      <button type="button" class="onboarding__cta" id="onboardingEnterApp">Go to Today</button>
+      <div class="onboarding__complete-actions">
+        <button type="button" class="onboarding__cta" id="onboardingAddAnother">Add another</button>
+        <button type="button" class="onboarding__cta onboarding__cta--secondary" id="onboardingEnterApp">Go to Today</button>
+      </div>
     </section>
   </div>
 
@@ -1225,7 +1228,7 @@
   <script src="planning-ai.js?v=20260523"></script>
   <script src="planning.js?v=20260523"></script>
   <script src="intent-engine.js?v=20260521f"></script>
-  <script src="onboarding.js?v=20260521f"></script>
+  <script src="onboarding.js?v=20260521g"></script>
   <script src="os-core.js?v=20260529"></script>
   <script src="os-bindings.js?v=20260529"></script>
   <script src="action-engine.js?v=20260528"></script>

@@ -298,7 +298,12 @@
       els.completeTitle.textContent = isReminder ? "Reminder added" : "Task added";
     }
     if (els.completeSub) {
-      els.completeSub.textContent = "You're ready for Today.";
+      els.completeSub.textContent = isReminder
+        ? "Add another reminder or task, or go to Today."
+        : "Add another, or go to Today.";
+    }
+    if (els.addAnother) {
+      els.addAnother.textContent = isReminder ? "Add another" : "Add another";
     }
     const rows = [
       { label: isReminder ? saved.summary : "Saved as a task", show: true },
@@ -376,6 +381,12 @@
     if (handlers.onEnterApp) await handlers.onEnterApp();
   }
 
+  function addAnotherItem() {
+    resetReminderStep();
+    showStep("reminder");
+    els.reminderInput?.focus();
+  }
+
   function bind() {
     els.getStarted?.addEventListener("click", () => showStep("auth"));
     els.skipAuth?.addEventListener("click", () => goToReminderStep());
@@ -398,6 +409,7 @@
       els.reminderInput?.focus();
     });
 
+    els.addAnother?.addEventListener("click", addAnotherItem);
     els.enterApp?.addEventListener("click", finishAndEnterApp);
   }
 

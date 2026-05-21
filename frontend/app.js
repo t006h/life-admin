@@ -1825,6 +1825,7 @@ async function runStartApplication() {
       completeTitle: document.getElementById("onboardingCompleteTitle"),
       completeSub: document.getElementById("onboardingCompleteSub"),
       completeList: document.getElementById("onboardingCompleteList"),
+      addAnother: document.getElementById("onboardingAddAnother"),
       enterApp: document.getElementById("onboardingEnterApp"),
     },
     {
