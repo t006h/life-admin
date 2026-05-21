@@ -579,7 +579,7 @@ function getFirstAccessibleCategory() {
 function showUpgradeAlert(categoryOrFeature) {
   const map = {
     mot: "workflows",
-    life-events: "workflows",
+    "life-events": "workflows",
     planning: "weekly_planning",
     family: "family_activities",
     ai: "book_for_me",
