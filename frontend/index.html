@@ -101,10 +101,7 @@
   </div>
 
   <div class="app app--intent-first app--life-os app--gated">
-    <header class="app-bar">
-      <button type="button" class="app-bar__menu" id="btnMenu" aria-label="Menu">
-        <span class="app-bar__menu-icon"></span>
-      </button>
+    <header class="app-bar app-bar--no-menu">
       <div class="app-bar__center app-bar__center--global">
         <h1 class="app-bar__greeting" id="globalHeaderGreeting">Hi there 👋</h1>
         <p class="app-bar__tagline" id="globalHeaderTagline">Remembers and handles life so your family doesn't have to</p>
@@ -210,7 +207,7 @@
             <button type="button" class="os-show-more" id="todayRemindersMore" hidden>View all</button>
           </section>
 
-          <p class="os-scroll-hint" id="todayScrollHint">Scroll for priorities, upcoming events, and more — or open the menu anytime.</p>
+          <p class="os-scroll-hint" id="todayScrollHint">Scroll for priorities, upcoming events, and more — or tap Menu below.</p>
 
           <section class="act-section" id="actionCardsSection" aria-label="Actions to complete">
             <header class="act-section__head">
@@ -813,17 +810,17 @@
     </div>
 
     <nav class="tab-bar tab-bar--intent" id="mainTabBar" aria-label="Main navigation">
-      <button type="button" class="tab-bar__item tab-bar__item--active" data-nav="tasks" data-tab-slot="1" aria-current="page">
-        <span class="tab-bar__icon tab-bar__icon--list" aria-hidden="true"></span>
-        <span class="tab-bar__label" data-tab-label="1">Tasks</span>
-      </button>
-      <button type="button" class="tab-bar__item" data-nav="vault" data-tab-slot="2">
-        <span class="tab-bar__icon tab-bar__icon--shield" aria-hidden="true"></span>
-        <span class="tab-bar__label" data-tab-label="2">Vault</span>
-      </button>
-      <button type="button" class="tab-bar__item" data-nav="menu" data-tab-slot="3">
+      <button type="button" class="tab-bar__item" data-nav="menu" data-tab-slot="1">
         <span class="tab-bar__icon tab-bar__icon--menu" aria-hidden="true">☰</span>
-        <span class="tab-bar__label" data-tab-label="3">Menu</span>
+        <span class="tab-bar__label" data-tab-label="1">Menu</span>
+      </button>
+      <button type="button" class="tab-bar__item tab-bar__item--active" data-nav="tasks" data-tab-slot="2" aria-current="page">
+        <span class="tab-bar__icon tab-bar__icon--list" aria-hidden="true"></span>
+        <span class="tab-bar__label" data-tab-label="2">Tasks</span>
+      </button>
+      <button type="button" class="tab-bar__item" data-nav="vault" data-tab-slot="3">
+        <span class="tab-bar__icon tab-bar__icon--shield" aria-hidden="true"></span>
+        <span class="tab-bar__label" data-tab-label="3">Vault</span>
       </button>
     </nav>
   </div>

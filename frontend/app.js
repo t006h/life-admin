@@ -296,7 +296,6 @@ const uiEls = {
   filterUpcoming: $("#filterUpcoming"),
   panelTasks: $("#panelTasks"),
   panelUpcoming: $("#panelUpcoming"),
-  btnMenu: $("#btnMenu"),
   sideMenu: $("#sideMenu"),
   sideMenuClose: $("#sideMenuClose"),
   sideMenuNav: $("#sideMenuNav"),
@@ -436,11 +435,10 @@ function renderGlobalHeader() {
 
 function configureMainTabBar(view) {
   const onToday = view === "dashboard" || view === "tasks";
-  const items = $$("#mainTabBar .tab-bar__item");
-  if (!items.length) return;
-  const slot1 = items[0];
-  const label1 = slot1?.querySelector("[data-tab-label]");
-  const icon1 = slot1?.querySelector(".tab-bar__icon");
+  const slot1 = document.querySelector('#mainTabBar [data-tab-slot="2"]');
+  if (!slot1) return;
+  const label1 = slot1.querySelector("[data-tab-label]");
+  const icon1 = slot1.querySelector(".tab-bar__icon");
   if (onToday) {
     slot1.dataset.nav = "tasks";
     if (label1) label1.textContent = "Tasks";
@@ -1788,7 +1786,6 @@ async function init() {
   uiEls.filterTasks?.addEventListener("click", () => toggleFilterPanel("tasks"));
   uiEls.filterUpcoming?.addEventListener("click", () => toggleFilterPanel("upcoming"));
 
-  uiEls.btnMenu?.addEventListener("click", () => uiEls.sideMenu?.showModal());
   uiEls.sideMenuClose?.addEventListener("click", () => uiEls.sideMenu?.close());
   uiEls.sideMenu?.addEventListener("click", (e) => {
     if (e.target === uiEls.sideMenu) uiEls.sideMenu.close();
@@ -1830,7 +1827,6 @@ function wireSurfaceExpansion() {
     { passive: true }
   );
 
-  document.getElementById("btnMenu")?.addEventListener("click", expand);
   document.querySelector(".tab-bar")?.addEventListener("click", expand);
 }
 

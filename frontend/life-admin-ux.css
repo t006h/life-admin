@@ -2,6 +2,10 @@
  * Life Admin — UX v2 (calm, mobile-first)
  */
 
+.app-bar--no-menu .account-chip--header {
+  display: none !important;
+}
+
 .app-bar__center--global {
   text-align: left;
   align-items: flex-start;
