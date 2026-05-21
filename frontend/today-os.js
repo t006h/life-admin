@@ -103,7 +103,6 @@
   }
 
   function render(els, data, handlers) {
-    renderFamilyOverview(els, handlers);
     renderQuickActions(els, handlers);
     renderRemindersStrip(els, data.notifications, handlers);
   }

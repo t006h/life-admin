@@ -1264,10 +1264,6 @@ function bindAppUiEventsOnce() {
     btn.addEventListener("click", () => handleTabNav(btn.dataset.nav));
   });
 
-  document.getElementById("intentMicBtn")?.addEventListener("click", () => {
-    alert("Voice input coming soon — type for now.");
-  });
-
   document.querySelectorAll("[data-nav-jump]").forEach((btn) => {
     btn.addEventListener("click", () => switchView(btn.dataset.navJump));
   });
@@ -1419,9 +1415,6 @@ async function init() {
 
   window.LifeAdminTodayOS.init(
     {
-      familyOverview: document.getElementById("todayFamilyOverview"),
-      familyList: document.getElementById("todayFamilyList"),
-      familyMore: document.getElementById("todayFamilyMore"),
       quickActions: document.getElementById("todayQuickActions"),
       remindersStrip: document.getElementById("todayRemindersStrip"),
       remindersList: document.getElementById("todayRemindersList"),

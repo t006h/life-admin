@@ -157,11 +157,9 @@
               <label class="intent-form__label visually-hidden" for="intentInput">Your request</label>
               <div class="intent-form__row">
                 <input type="text" class="intent-form__input" id="intentInput" name="intent" placeholder="Add a reminder or task" autocomplete="off" enterkeyhint="go">
-                <button type="button" class="intent-form__mic" id="intentMicBtn" aria-label="Voice input">🎤</button>
                 <button type="submit" class="intent-form__submit" id="intentSubmit">Go</button>
               </div>
             </form>
-            <div class="intent-examples" id="intentExamples" aria-label="Examples"></div>
             <article class="intent-result" id="intentResult" hidden>
               <div class="intent-result__head">
                 <span class="intent-result__icon" id="intentResultIcon" aria-hidden="true">✨</span>
@@ -179,20 +177,6 @@
               </section>
             </article>
           </section>
-
-          <article class="ui-card ui-card--calm os-family-card" id="todayFamilyOverview" hidden>
-            <header class="ui-card__header ui-card__header--compact">
-              <div class="ui-card__title-row">
-                <span class="ui-card__icon" aria-hidden="true">👨‍👩‍👧</span>
-                <div>
-                  <h2 class="ui-card__title">Family</h2>
-                  <p class="ui-card__subtitle">Household at a glance</p>
-                </div>
-              </div>
-            </header>
-            <div class="os-family-scroll" id="todayFamilyList"></div>
-            <button type="button" class="os-family-more" id="todayFamilyMore" hidden>View family</button>
-          </article>
 
           <div class="os-quick-actions" id="todayQuickActions" aria-label="Quick actions"></div>
 
@@ -1247,6 +1231,6 @@
   <script src="notifications-center.js?v=20260522"></script>
   <script src="tasks.js?v=20260524d"></script>
   <script src="today.js?v=20260523"></script>
-  <script src="app.js?v=20260524f"></script>
+  <script src="app.js?v=20260524g"></script>
 </body>
 </html>
