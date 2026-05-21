@@ -227,6 +227,12 @@
       lastSaved = result;
       localStorage.setItem(LS_FIRST_TASK, "true");
       window.LifeAdminApp?.markFirstTaskEntryDone?.();
+      if (result.tasks > 0) {
+        window.LifeAdminProductAnalytics?.trackTaskCreated?.({ source: "onboarding" });
+      }
+      if (result.reminders > 0) {
+        window.LifeAdminProductAnalytics?.trackReminderCreated?.({ source: "onboarding" });
+      }
       showComplete(result);
     } catch (err) {
       alert(err.message || "Could not save");

@@ -522,8 +522,15 @@
     };
     await saveTask(task);
     const idx = tasks.findIndex((t) => t.id === task.id);
+    const isNew = idx < 0;
     if (idx >= 0) tasks[idx] = task;
     else tasks.push(task);
+    if (isNew) {
+      window.LifeAdminProductAnalytics?.trackTaskCreated?.({
+        source: "quick",
+        category: task.category,
+      });
+    }
     renderTaskCards();
     if (onTasksChanged) onTasksChanged(tasks);
     return task;

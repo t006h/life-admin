@@ -427,6 +427,10 @@
 
     await window.LifeAdminReminders?.reloadReminders?.();
     renderVault();
+    window.LifeAdminProductAnalytics?.trackVaultUpload?.({
+      category: doc.category,
+      source: doc.source || "upload",
+    });
   }
 
   async function saveFromScanForm() {

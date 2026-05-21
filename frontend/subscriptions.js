@@ -90,6 +90,10 @@
   }
 
   function showUpgrade(featureKey) {
+    window.LifeAdminProductAnalytics?.trackUpgradeClick?.({
+      feature: featureKey,
+      source: "upgrade_modal_open",
+    });
     const copy = FEATURE_COPY[featureKey] || { name: "This feature", premium: true, chief: false };
     const need = requiredPlanFor(featureKey);
     const title = els.upgradeTitle || document.getElementById("upgradeModalTitle");
@@ -127,6 +131,9 @@
 
   function bind() {
     els.upgradeBtn?.addEventListener("click", () => {
+      window.LifeAdminProductAnalytics?.trackUpgradeClick?.({
+        source: "upgrade_modal_confirm",
+      });
       hideUpgrade();
       switchViewProfileUpgrade();
     });

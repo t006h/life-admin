@@ -205,6 +205,10 @@
 
     const parse = window.LifeAdminWorkflowEngine?.parseIntent || window.LifeAdminIntentEngine?.parseIntent;
     const result = parse?.(text);
+    window.LifeAdminProductAnalytics?.trackAiUsage?.({
+      source: "intent_hero",
+      has_plan: !!result?.plan,
+    });
 
     if (!result) {
       renderResult({

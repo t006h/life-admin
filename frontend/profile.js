@@ -74,6 +74,9 @@
       console.warn("User load failed, using dev/default context:", err);
     }
 
+    window.LifeAdminProductAnalytics?.trackSignupOnce?.({ source: ctx.source });
+    window.LifeAdminProductAnalytics?.trackDailyActive?.();
+
     setUserContext({
       role: ctx.role,
       plan: ctx.plan,

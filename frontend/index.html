@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="onboarding.css?v=20260524e">
   <link rel="stylesheet" href="deploy.css?v=20260524e">
   <link rel="stylesheet" href="life-admin-ux.css?v=20260524j">
+  <link rel="stylesheet" href="production-ready.css?v=20260525">
   <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="manifest" href="/manifest.webmanifest">
@@ -656,7 +657,7 @@
 
           <div class="vault-doc-list os-list--capped" id="vaultDocList"></div>
           <button type="button" class="os-show-more" id="vaultDocsMore" hidden>Show more documents</button>
-          <p class="empty-line vault-empty" id="vaultEmpty" hidden>Your vault is empty.</p>
+          <p class="empty-line vault-empty" id="vaultEmpty" hidden>No documents in your vault yet</p>
         </div>
       </section>
 
@@ -668,7 +669,7 @@
             <p class="screen-intro__sub">Vehicle test due dates</p>
           </header>
           <div class="card-list" id="motList"></div>
-          <p class="empty-line" id="motEmpty" hidden>No MOT reminders yet.</p>
+          <p class="empty-line" id="motEmpty" hidden>No reminders yet</p>
         </div>
       </section>
       <section class="view" id="view-passport" data-view="passport">
@@ -765,6 +766,8 @@
       </div>
     </div>
 
+    <p class="app-version" id="appVersion" aria-label="App version">v0.1</p>
+
     <nav class="tab-bar tab-bar--intent" id="mainTabBar" aria-label="Main navigation">
       <button type="button" class="tab-bar__item" data-nav="menu" data-tab-slot="1">
         <span class="tab-bar__icon tab-bar__icon--menu" aria-hidden="true">☰</span>
@@ -795,6 +798,26 @@
       <ul class="notification-center__list" id="notificationList"></ul>
       <p class="empty-line notification-center__empty" id="notificationEmpty" hidden>No notifications in this category.</p>
     </div>
+  </dialog>
+
+  <!-- Feedback -->
+  <dialog class="feedback-modal" id="feedbackModal">
+    <form class="feedback-modal__panel" id="feedbackForm">
+      <h2 class="feedback-modal__title" id="feedbackModalTitle">Report an issue</h2>
+      <label class="feedback-modal__field">
+        <span class="feedback-modal__label">Your message</span>
+        <textarea class="feedback-modal__textarea" id="feedbackMessage" required placeholder="What happened or what would help?"></textarea>
+      </label>
+      <label class="feedback-modal__field">
+        <span class="feedback-modal__label">Email (optional)</span>
+        <input class="feedback-modal__input" type="email" id="feedbackEmail" autocomplete="email" placeholder="you@example.com">
+      </label>
+      <div class="feedback-modal__actions">
+        <button type="submit" class="onboarding__cta" id="feedbackSubmit">Send</button>
+        <button type="button" class="onboarding__cta onboarding__cta--secondary" id="feedbackCancel">Cancel</button>
+      </div>
+      <button type="button" class="modal__close" id="feedbackClose" aria-label="Close" style="position:absolute;top:12px;right:12px">&times;</button>
+    </form>
   </dialog>
 
   <!-- Upgrade prompt (soft gate) -->
@@ -1193,6 +1216,9 @@
   <script src="action-engine.js?v=20260528"></script>
   <script src="action-ui.js?v=20260528"></script>
   <script src="today-os.js?v=20260529"></script>
+  <script src="product-analytics.js?v=20260525"></script>
+  <script src="production-ready.js?v=20260525"></script>
+  <script src="feedback.js?v=20260525"></script>
   <script src="analytics.js?v=20260529"></script>
   <script src="ai-prompts.js?v=20260529"></script>
   <script src="context-engine.js?v=20260527"></script>
@@ -1207,6 +1233,6 @@
   <script src="notifications-center.js?v=20260522"></script>
   <script src="tasks.js?v=20260524d"></script>
   <script src="today.js?v=20260523"></script>
-  <script src="app.js?v=20260524j"></script>
+  <script src="app.js?v=20260525"></script>
 </body>
 </html>

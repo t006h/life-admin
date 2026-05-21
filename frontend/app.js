@@ -520,6 +520,19 @@ function addMenuLink(nav, { label, nav: view, feature, premiumOnly }) {
   nav.appendChild(btn);
 }
 
+function renderFeedbackMenu(nav) {
+  addMenuSection(nav, "Feedback");
+  const block = document.createElement("div");
+  block.className = "feedback-block";
+  block.innerHTML = `
+    <p class="feedback-block__lead">Found a problem or have an idea?</p>
+    <div class="feedback-block__actions">
+      <button type="button" class="feedback-block__btn" id="feedbackReportIssue">Report issue</button>
+      <button type="button" class="feedback-block__btn" id="feedbackSuggestFeature">Suggest feature</button>
+    </div>`;
+  nav.appendChild(block);
+}
+
 function renderProfilePanel(nav) {
   const { plan, fullName, email } = Access().getUserContext();
   const panel = document.createElement("div");
@@ -532,6 +545,10 @@ function renderProfilePanel(nav) {
     <button type="button" class="profile-panel__upgrade" id="sideMenuUpgrade">Upgrade</button>`;
   panel.querySelector("#sideMenuUpgrade")?.addEventListener("click", () => {
     uiEls.sideMenu?.close();
+    window.LifeAdminProductAnalytics?.trackUpgradeClick?.({
+      source: "profile_panel",
+      plan: Access().getPublicPlanLabel(plan),
+    });
     window.LifeAdminSubscriptions?.showUpgrade?.(
       plan === Access().PLANS.FREE ? "workflows" : "book_for_me"
     );
@@ -561,6 +578,8 @@ function renderSideMenu() {
 
   addMenuSection(uiEls.sideMenuNav, "Settings");
   addMenuLink(uiEls.sideMenuNav, { label: "Notifications", nav: "dashboard" });
+
+  renderFeedbackMenu(uiEls.sideMenuNav);
 
   if (Access().isAdmin()) {
     addMenuSection(uiEls.sideMenuNav, "Internal");
@@ -1021,31 +1040,47 @@ async function createReminderFromWorkflow(category, item) {
   };
   await upsertItem(category, record);
   const idx = list.findIndex((i) => i.id === id);
+  const isNew = idx < 0;
   if (idx >= 0) list[idx] = record;
   else list.push(record);
+  if (isNew) {
+    window.LifeAdminProductAnalytics?.trackReminderCreated?.({
+      category,
+      source: "workflow",
+    });
+  }
 }
 
 async function renderAll() {
-  await applyAccessUI();
-  await Promise.all([
-    window.LifeAdminVault?.loadDocuments?.(),
-    window.LifeAdminFamily?.loadAll?.().catch((e) => {
-      console.warn("Family load failed:", e);
-      return null;
-    }),
-    window.LifeAdminNotificationCenter?.loadStates?.().catch(() => null),
-    window.LifeAdminPlanning?.loadTimeBlocks?.().catch(() => null),
-    window.LifeAdminLifeEvents?.loadEvents?.().catch(() => null),
-    window.LifeAdminContextEngine?.loadMemories?.().catch(() => null),
-  ]);
-  renderDashboard();
-  renderAiChief();
-  window.LifeAdminVault?.renderVault?.();
-  window.LifeAdminFamily?.renderFamily?.();
-  renderPlanning();
-  renderLifeEvents();
-  for (const cat of Object.keys(CATEGORIES)) {
-    renderCategory(cat);
+  const dashView = document.getElementById("view-dashboard");
+  window.LifeAdminProduction?.setViewLoading?.(dashView, true, "Updating…");
+  try {
+    await applyAccessUI();
+    await Promise.all([
+      window.LifeAdminVault?.loadDocuments?.(),
+      window.LifeAdminFamily?.loadAll?.().catch((e) => {
+        console.warn("Family load failed:", e);
+        return null;
+      }),
+      window.LifeAdminNotificationCenter?.loadStates?.().catch(() => null),
+      window.LifeAdminPlanning?.loadTimeBlocks?.().catch(() => null),
+      window.LifeAdminLifeEvents?.loadEvents?.().catch(() => null),
+      window.LifeAdminContextEngine?.loadMemories?.().catch(() => null),
+    ]);
+    renderDashboard();
+    renderAiChief();
+    window.LifeAdminVault?.renderVault?.();
+    window.LifeAdminFamily?.renderFamily?.();
+    renderPlanning();
+    renderLifeEvents();
+    for (const cat of Object.keys(CATEGORIES)) {
+      renderCategory(cat);
+    }
+    window.LifeAdminProduction?.applyEmptyStateMessages?.();
+  } catch (err) {
+    window.LifeAdminProduction?.handleError?.(err, "Could not refresh your data");
+  } finally {
+    window.LifeAdminProduction?.setViewLoading?.(dashView, false);
   }
 }
 
@@ -1240,9 +1275,14 @@ async function saveItem(formData) {
 
     renderAll();
     closeModal();
+    if (!existingId) {
+      window.LifeAdminProductAnalytics?.trackReminderCreated?.({
+        category,
+        source: "modal",
+      });
+    }
   } catch (err) {
-    console.error(err);
-    alert(`Could not save: ${err.message || "Unknown error"}`);
+    window.LifeAdminProduction?.handleError?.(err, "Could not save reminder");
     setModalSaving(false);
   }
 }
@@ -1329,6 +1369,8 @@ function bindAppUiEventsOnce() {
 }
 
 async function init() {
+  window.LifeAdminProduction?.init?.();
+  window.LifeAdminFeedback?.init?.();
   renderSideMenu();
   bindAppUiEventsOnce();
   window.LifeAdminSubscriptions?.init?.();
@@ -1456,11 +1498,13 @@ async function init() {
     {
       onNavigate: navigateFromIntent,
       onFamilySummary: () => {
+        window.LifeAdminProductAnalytics?.trackAiUsage?.({ source: "family_summary" });
         const msg = window.LifeAdminAiChief.generateFamilySummary(getFullContextPayload());
         showBanner("loading", msg);
         setTimeout(hideBanner, 4000);
       },
       onRisksSummary: () => {
+        window.LifeAdminProductAnalytics?.trackAiUsage?.({ source: "risks_summary" });
         const msg = window.LifeAdminAiChief.generateRisksSummary(getFullContextPayload());
         showBanner("loading", msg);
         setTimeout(hideBanner, 4000);
@@ -1796,6 +1840,8 @@ async function init() {
   isLoading = true;
 
   try {
+    window.LifeAdminProductAnalytics?.trackDailyActive?.();
+    window.LifeAdminProductAnalytics?.flushQueue?.().catch(() => null);
     const [reminderState] = await Promise.all([
       loadFromSupabase(),
       window.LifeAdminTasks.loadTasks().catch((e) => {
@@ -1817,8 +1863,7 @@ async function init() {
       window.LifeAdminDeploy?.markBooted?.();
     }
   } catch (err) {
-    console.error(err);
-    const msg = err.message || "Check Supabase setup";
+    const msg = window.LifeAdminProduction?.handleError?.(err, "Could not load data") || err.message;
     showBanner("error", `Could not load data: ${msg}`);
     if (window.LifeAdminOnboarding?.isComplete?.()) {
       window.LifeAdminDeploy?.showFatalError?.("Could not load your data", msg);
@@ -1857,6 +1902,7 @@ async function ensureAppBooted() {
 }
 
 async function enterMainApp() {
+  window.LifeAdminProductAnalytics?.trackDailyActive?.();
   window.LifeAdminDeploy?.showLoader?.("Preparing your day…");
   const app = document.querySelector(".app");
   if (app) {
@@ -1942,6 +1988,8 @@ async function runStartApplication() {
       onActivateWorkflow: workflowIntentHandlers.onActivateWorkflow,
     }
   );
+
+  window.LifeAdminProduction?.init?.();
 
   if (!onboardingShown) {
     document.body.classList.add("onboarding-done");
