@@ -53,9 +53,10 @@
 }
 
 .onboarding__headline--step {
-  margin-bottom: 40px;
-  font-size: clamp(1.75rem, 7vw, 2.25rem);
-  text-transform: lowercase;
+  margin-bottom: 32px;
+  font-size: clamp(2rem, 8vw, 2.75rem);
+  text-transform: none;
+  letter-spacing: -0.03em;
 }
 
 .onboarding__intent--centered {
@@ -215,6 +216,73 @@
   font-family: var(--font);
   background: var(--surface);
   box-shadow: var(--shadow-sm);
+}
+
+.onboarding__intent-input--hero {
+  width: 100%;
+  padding: 22px 24px;
+  border: 2px solid rgba(61, 139, 122, 0.35);
+  border-radius: 20px;
+  font-size: 1.125rem;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(61, 139, 122, 0.12);
+}
+
+.onboarding__intent-input--hero::placeholder {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.onboarding__intent-input--hero:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 12px 40px rgba(61, 139, 122, 0.2);
+}
+
+.onboarding__details {
+  width: 100%;
+  max-width: 320px;
+  text-align: left;
+}
+
+.onboarding__details-lead {
+  margin: 0 0 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+}
+
+.onboarding__details-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.onboarding__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.onboarding__field-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.onboarding__optional {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.onboarding__field-input {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  font-family: var(--font);
+  font-size: 1rem;
+  background: var(--surface);
 }
 
 .onboarding__examples {

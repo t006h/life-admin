@@ -256,6 +256,51 @@
     };
   }
 
+  function cleanTaskTitle(text) {
+    return normalize(text)
+      .replace(/^(please\s+)?(add a )?task:?\s+/i, "")
+      .replace(/^(remember to|need to)\s+/i, "")
+      .trim() || normalize(text);
+  }
+
+  /** Reminder vs task + category for onboarding. */
+  function classifyOnboardingInput(raw) {
+    const text = normalize(raw);
+    if (!text) return null;
+
+    const lower = text.toLowerCase();
+    const taskSignals =
+      /\b(task|todo|to-do|remember to|need to|pick up|call|email|send|organize|pack|buy|book appointment)\b/i;
+    const reminderSignals =
+      /\b(remind|reminder|renew|due|expires?|expiry|mot|passport|licen[cs]e|bill|subscription|insurance|tax|council|netflix|spotify)\b/i;
+
+    const preferTask = taskSignals.test(lower) && !reminderSignals.test(lower);
+
+    if (preferTask) {
+      return {
+        kind: "task",
+        title: cleanTaskTitle(text),
+        dueDate: extractDueDateFromText(text) || dueInDays(3),
+        icon: "✓",
+        label: "Task",
+        summary: "We'll add this as a task",
+        category: "general",
+      };
+    }
+
+    const rem = categorizeReminder(text);
+    if (!rem) return null;
+    return {
+      kind: "reminder",
+      category: rem.category,
+      title: rem.title,
+      dueDate: rem.dueDate,
+      icon: rem.icon,
+      label: rem.label,
+      summary: rem.summary,
+    };
+  }
+
   function parseIntent(raw) {
     const wf = window.LifeAdminWorkflowEngine?.parseIntent?.(raw);
     const detection = window.LifeAdminWorkflowEngine?.detectIntent?.(raw);
@@ -281,6 +326,7 @@
   window.LifeAdminIntentEngine = {
     parseIntent,
     categorizeReminder,
+    classifyOnboardingInput,
     EXAMPLE_CHIPS,
   };
 })();

@@ -63,16 +63,45 @@
     </section>
 
     <section class="onboarding__screen" data-onboarding-step="reminder" hidden>
-      <h2 class="onboarding__headline onboarding__headline--step">name</h2>
+      <h2 class="onboarding__headline onboarding__headline--step" id="onboardingUserName">there</h2>
       <div class="onboarding__intent onboarding__intent--centered">
-        <form class="onboarding__intent-form" id="onboardingReminderForm">
-          <input type="text" class="onboarding__intent-input" id="onboardingReminderInput" placeholder="add a reminder or a task" autocomplete="off" enterkeyhint="done" required aria-label="add a reminder or a task">
-          <div class="onboarding__category-preview" id="onboardingReminderCategory" hidden aria-live="polite">
-            <span class="onboarding__category-badge" id="onboardingReminderCategoryLabel"></span>
-            <span class="onboarding__category-detail" id="onboardingReminderCategoryDetail"></span>
-          </div>
-          <button type="submit" class="onboarding__cta" id="onboardingReminderSubmit" disabled>Add reminder</button>
-        </form>
+        <div class="onboarding__entry" id="onboardingEntryPhase">
+          <form class="onboarding__intent-form" id="onboardingReminderForm">
+            <input type="text" class="onboarding__intent-input onboarding__intent-input--hero" id="onboardingReminderInput" placeholder="add a task or a reminder" autocomplete="off" enterkeyhint="go" required aria-label="add a task or a reminder">
+            <div class="onboarding__category-preview" id="onboardingReminderCategory" hidden aria-live="polite">
+              <span class="onboarding__category-badge" id="onboardingReminderCategoryLabel"></span>
+              <span class="onboarding__category-detail" id="onboardingReminderCategoryDetail"></span>
+            </div>
+            <button type="submit" class="onboarding__cta" id="onboardingReminderContinue" disabled>Continue</button>
+          </form>
+        </div>
+        <div class="onboarding__details" id="onboardingDetailsPhase" hidden>
+          <p class="onboarding__details-lead" id="onboardingDetailsLead">Add a few details</p>
+          <form class="onboarding__details-form" id="onboardingDetailsForm">
+            <label class="onboarding__field">
+              <span class="onboarding__field-label" id="onboardingDetailTitleLabel">Title</span>
+              <input type="text" class="onboarding__field-input" id="onboardingDetailTitle" required>
+            </label>
+            <label class="onboarding__field">
+              <span class="onboarding__field-label">Due date</span>
+              <input type="date" class="onboarding__field-input" id="onboardingDetailDueDate" required>
+            </label>
+            <label class="onboarding__field" id="onboardingDetailPriorityWrap" hidden>
+              <span class="onboarding__field-label">Priority</span>
+              <select class="onboarding__field-input" id="onboardingDetailPriority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+            <label class="onboarding__field" id="onboardingDetailNotesWrap" hidden>
+              <span class="onboarding__field-label">Notes <span class="onboarding__optional">(optional)</span></span>
+              <input type="text" class="onboarding__field-input" id="onboardingDetailNotes" placeholder="Extra details">
+            </label>
+            <button type="submit" class="onboarding__cta" id="onboardingDetailsSave">Save</button>
+            <button type="button" class="onboarding__cta onboarding__cta--secondary" id="onboardingDetailsBack">Back</button>
+          </form>
+        </div>
         <p class="onboarding__status" id="onboardingReminderStatus" aria-live="polite"></p>
       </div>
     </section>
@@ -1196,7 +1225,7 @@
   <script src="family.js?v=20260521"></script>
   <script src="planning-ai.js?v=20260523"></script>
   <script src="planning.js?v=20260523"></script>
-  <script src="onboarding.js?v=20260521c"></script>
+  <script src="onboarding.js?v=20260521d"></script>
   <script src="os-core.js?v=20260529"></script>
   <script src="os-bindings.js?v=20260529"></script>
   <script src="action-engine.js?v=20260528"></script>
@@ -1211,7 +1240,7 @@
   <script src="life-events-ai.js?v=20260526"></script>
   <script src="workflow-definitions.js?v=20260526"></script>
   <script src="workflow-engine.js?v=20260526"></script>
-  <script src="intent-engine.js?v=20260521b"></script>
+  <script src="intent-engine.js?v=20260521d"></script>
   <script src="workflow-ui.js?v=20260526"></script>
   <script src="life-events.js?v=20260526"></script>
   <script src="notifications-center.js?v=20260522"></script>

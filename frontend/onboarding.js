@@ -1,5 +1,5 @@
 /**
- * Life Admin — onboarding (landing → auth → add reminder → done)
+ * Life Admin — onboarding (landing → auth → add task/reminder → done)
  */
 (function () {
   const LS_COMPLETE = "life_admin_onboarding_v1";
@@ -8,7 +8,7 @@
   let els = {};
   let handlers = {};
   let categorizeTimer = null;
-  let lastCategorized = null;
+  let pendingEntry = null;
 
   function isComplete() {
     return localStorage.getItem(LS_COMPLETE) === "true";
@@ -31,6 +31,10 @@
       s.classList.toggle("onboarding__screen--active", active);
       s.hidden = !active;
     });
+    if (name === "reminder") {
+      refreshUserDisplayName();
+      showEntryPhase();
+    }
   }
 
   function setStatus(text) {
@@ -50,27 +54,88 @@
     }
   }
 
+  function getDisplayName() {
+    const ctx = window.LifeAdminAccess?.getUserContext?.();
+    const full = ctx?.fullName?.trim();
+    if (full) return full.split(/\s+/)[0];
+    const email = localStorage.getItem(LS_EMAIL) || ctx?.email;
+    if (email && email.includes("@")) {
+      const local = email.split("@")[0];
+      return local.charAt(0).toUpperCase() + local.slice(1);
+    }
+    return "there";
+  }
+
+  async function refreshUserDisplayName() {
+    try {
+      await window.LifeAdminProfile?.initUserContext?.();
+    } catch (e) {
+      console.warn("Profile preload:", e.message);
+    }
+    if (els.userName) {
+      els.userName.textContent = getDisplayName();
+    }
+  }
+
+  function showEntryPhase() {
+    pendingEntry = null;
+    if (els.entryPhase) els.entryPhase.hidden = false;
+    if (els.detailsPhase) els.detailsPhase.hidden = true;
+    if (els.reminderCategory) els.reminderCategory.hidden = true;
+    if (els.reminderContinue) els.reminderContinue.disabled = true;
+    setStatus("");
+  }
+
+  function showDetailsPhase(classified) {
+    pendingEntry = classified;
+    if (els.entryPhase) els.entryPhase.hidden = true;
+    if (els.detailsPhase) els.detailsPhase.hidden = false;
+
+    const isReminder = classified.kind === "reminder";
+    if (els.detailsLead) {
+      els.detailsLead.textContent = isReminder
+        ? `Add details for your ${classified.label} reminder`
+        : "Add details for your task";
+    }
+    if (els.detailTitleLabel) {
+      els.detailTitleLabel.textContent = isReminder ? "Reminder" : "Task";
+    }
+    if (els.detailTitle) els.detailTitle.value = classified.title || "";
+    if (els.detailDueDate) els.detailDueDate.value = classified.dueDate || "";
+    if (els.detailPriorityWrap) els.detailPriorityWrap.hidden = isReminder;
+    if (els.detailNotesWrap) els.detailNotesWrap.hidden = !isReminder;
+    if (els.detailNotes) els.detailNotes.value = "";
+    if (els.detailsSave) {
+      els.detailsSave.textContent = isReminder ? "Save reminder" : "Save task";
+    }
+    els.detailTitle?.focus();
+  }
+
   function updateCategoryPreview() {
     const text = els.reminderInput?.value?.trim();
     if (!text) {
-      lastCategorized = null;
+      pendingEntry = null;
       if (els.reminderCategory) els.reminderCategory.hidden = true;
-      if (els.reminderSubmit) els.reminderSubmit.disabled = true;
+      if (els.reminderContinue) els.reminderContinue.disabled = true;
       return;
     }
 
-    const result = window.LifeAdminIntentEngine?.categorizeReminder?.(text);
-    lastCategorized = result;
+    const result = window.LifeAdminIntentEngine?.classifyOnboardingInput?.(text);
+    pendingEntry = result;
     if (!result || !els.reminderCategory) return;
 
     els.reminderCategory.hidden = false;
     if (els.reminderCategoryLabel) {
-      els.reminderCategoryLabel.textContent = `${result.icon} ${result.label}`;
+      const kindLabel = result.kind === "task" ? "Task" : "Reminder";
+      els.reminderCategoryLabel.textContent =
+        result.kind === "reminder"
+          ? `${result.icon} ${kindLabel} · ${result.label}`
+          : `${result.icon} ${kindLabel}`;
     }
     if (els.reminderCategoryDetail) {
       els.reminderCategoryDetail.textContent = result.summary;
     }
-    if (els.reminderSubmit) els.reminderSubmit.disabled = false;
+    if (els.reminderContinue) els.reminderContinue.disabled = false;
   }
 
   function scheduleCategoryPreview() {
@@ -94,6 +159,12 @@
     }
   }
 
+  async function goToReminderStep() {
+    showStep("reminder");
+    await refreshUserDisplayName();
+    els.reminderInput?.focus();
+  }
+
   async function continueAuth(method) {
     if (method === "google") {
       const started = await tryOAuth("google");
@@ -108,8 +179,7 @@
       els.emailInput?.focus();
       return;
     }
-    showStep("reminder");
-    els.reminderInput?.focus();
+    await goToReminderStep();
   }
 
   async function submitEmail(e) {
@@ -126,22 +196,28 @@
         console.warn("Email OTP:", err.message);
       }
     }
-    showStep("reminder");
-    els.reminderInput?.focus();
+    await goToReminderStep();
   }
 
-  function showCompletion(result) {
+  function showCompletion(saved) {
     showStep("complete");
+    const isReminder = saved.kind === "reminder";
     if (els.completeTitle) {
-      els.completeTitle.textContent = "Reminder added";
+      els.completeTitle.textContent = isReminder ? "Reminder added" : "Task added";
     }
     if (els.completeSub) {
-      els.completeSub.textContent = "We've sorted it — you're ready for Today.";
+      els.completeSub.textContent = "You're ready for Today.";
     }
     const rows = [
-      { label: result.summary, show: true },
-      { label: `Due ${formatDueDate(result.dueDate)}`, show: !!result.dueDate },
-      { label: "Saved to your reminders", show: true },
+      {
+        label: isReminder ? saved.summary : "Saved as a task",
+        show: true,
+      },
+      { label: `Due ${formatDueDate(saved.dueDate)}`, show: !!saved.dueDate },
+      {
+        label: isReminder ? "Saved to your reminders" : "Saved to your tasks",
+        show: true,
+      },
     ].filter((r) => r.show);
 
     if (els.completeList) {
@@ -155,32 +231,61 @@
     }
   }
 
-  async function submitReminder() {
+  function proceedToDetails(e) {
+    e?.preventDefault();
     const text = els.reminderInput?.value?.trim();
     if (!text) return;
 
-    const result = window.LifeAdminIntentEngine?.categorizeReminder?.(text);
+    const result =
+      pendingEntry || window.LifeAdminIntentEngine?.classifyOnboardingInput?.(text);
     if (!result) return;
 
-    els.reminderSubmit.disabled = true;
-    setStatus("Adding your reminder…");
+    localStorage.setItem("life_admin_first_intent", text);
+    showDetailsPhase(result);
+  }
+
+  async function saveDetails(e) {
+    e?.preventDefault();
+    if (!pendingEntry) return;
+
+    const title = els.detailTitle?.value?.trim();
+    const dueDate = els.detailDueDate?.value;
+    if (!title || !dueDate) return;
+
+    els.detailsSave.disabled = true;
+    setStatus("Saving…");
+
+    const payload = {
+      title,
+      dueDate,
+      notes: els.detailNotes?.value?.trim() || "",
+      subtitle: "",
+    };
 
     try {
-      if (handlers.onCreateReminder) {
-        await handlers.onCreateReminder(result.category, {
-          title: result.title,
-          dueDate: result.dueDate,
-          subtitle: "",
-          notes: "",
+      if (pendingEntry.kind === "reminder") {
+        if (handlers.onCreateReminder) {
+          await handlers.onCreateReminder(pendingEntry.category, payload);
+        }
+      } else if (handlers.onCreateTask) {
+        await handlers.onCreateTask({
+          title,
+          dueDate,
+          priority: els.detailPriority?.value || "medium",
+          category: pendingEntry.category || "general",
         });
       }
-      localStorage.setItem("life_admin_first_intent", text);
+
       setStatus("");
-      showCompletion(result);
+      showCompletion({
+        kind: pendingEntry.kind,
+        summary: pendingEntry.summary,
+        dueDate,
+      });
     } catch (err) {
       setStatus("");
       alert(err.message || "Could not save — try again");
-      els.reminderSubmit.disabled = false;
+      els.detailsSave.disabled = false;
     }
   }
 
@@ -191,10 +296,7 @@
 
   function bind() {
     els.getStarted?.addEventListener("click", () => showStep("auth"));
-    els.skipAuth?.addEventListener("click", () => {
-      showStep("reminder");
-      els.reminderInput?.focus();
-    });
+    els.skipAuth?.addEventListener("click", () => goToReminderStep());
 
     els.authGoogle?.addEventListener("click", () => continueAuth("google"));
     els.authApple?.addEventListener("click", () => continueAuth("apple"));
@@ -202,10 +304,9 @@
     els.emailForm?.addEventListener("submit", submitEmail);
 
     els.reminderInput?.addEventListener("input", scheduleCategoryPreview);
-    els.reminderForm?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      submitReminder();
-    });
+    els.reminderForm?.addEventListener("submit", proceedToDetails);
+    els.detailsForm?.addEventListener("submit", saveDetails);
+    els.detailsBack?.addEventListener("click", showEntryPhase);
 
     els.enterApp?.addEventListener("click", finishAndEnterApp);
   }
@@ -224,7 +325,7 @@
     document.body.classList.remove("onboarding-done");
     if (els.shell) els.shell.hidden = false;
     showStep("landing");
-    if (els.reminderSubmit) els.reminderSubmit.disabled = true;
+    if (els.reminderContinue) els.reminderContinue.disabled = true;
     return true;
   }
 

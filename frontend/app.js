@@ -1803,12 +1803,26 @@ async function runStartApplication() {
       emailForm: document.getElementById("onboardingEmailForm"),
       emailInput: document.getElementById("onboardingEmailInput"),
       skipAuth: document.getElementById("onboardingSkipAuth"),
+      userName: document.getElementById("onboardingUserName"),
+      entryPhase: document.getElementById("onboardingEntryPhase"),
+      detailsPhase: document.getElementById("onboardingDetailsPhase"),
       reminderForm: document.getElementById("onboardingReminderForm"),
       reminderInput: document.getElementById("onboardingReminderInput"),
-      reminderSubmit: document.getElementById("onboardingReminderSubmit"),
+      reminderContinue: document.getElementById("onboardingReminderContinue"),
       reminderCategory: document.getElementById("onboardingReminderCategory"),
       reminderCategoryLabel: document.getElementById("onboardingReminderCategoryLabel"),
       reminderCategoryDetail: document.getElementById("onboardingReminderCategoryDetail"),
+      detailsLead: document.getElementById("onboardingDetailsLead"),
+      detailsForm: document.getElementById("onboardingDetailsForm"),
+      detailTitleLabel: document.getElementById("onboardingDetailTitleLabel"),
+      detailTitle: document.getElementById("onboardingDetailTitle"),
+      detailDueDate: document.getElementById("onboardingDetailDueDate"),
+      detailPriorityWrap: document.getElementById("onboardingDetailPriorityWrap"),
+      detailPriority: document.getElementById("onboardingDetailPriority"),
+      detailNotesWrap: document.getElementById("onboardingDetailNotesWrap"),
+      detailNotes: document.getElementById("onboardingDetailNotes"),
+      detailsSave: document.getElementById("onboardingDetailsSave"),
+      detailsBack: document.getElementById("onboardingDetailsBack"),
       reminderStatus: document.getElementById("onboardingReminderStatus"),
       completeTitle: document.getElementById("onboardingCompleteTitle"),
       completeSub: document.getElementById("onboardingCompleteSub"),
@@ -1820,6 +1834,10 @@ async function runStartApplication() {
       onCreateReminder: async (category, item) => {
         if (!getClient()) return;
         await createReminderFromWorkflow(category, item);
+      },
+      onCreateTask: async (item) => {
+        if (!getClient()) return;
+        await window.LifeAdminTasks.createTaskQuick(item);
       },
     }
   );
