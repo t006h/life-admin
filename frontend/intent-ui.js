@@ -15,7 +15,13 @@
   function renderExamples() {
     if (!els.intentExamples) return;
     els.intentExamples.replaceChildren();
-    const chips = window.LifeAdminIntentEngine?.EXAMPLE_CHIPS || [];
+    const chips = [
+      "Renew passport",
+      "Book MOT",
+      "We're moving house",
+      "Plan our holiday",
+      "Theo has a school trip",
+    ];
     chips.forEach((phrase) => {
       const btn = document.createElement("button");
       btn.type = "button";

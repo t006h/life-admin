@@ -70,6 +70,16 @@
               </section>`
             : ""
         }
+        <section class="admin-panel__section">
+          <h4>Discount codes</h4>
+          <p class="admin-panel__placeholder">Founder / admin only — not visible to users</p>
+          <ul class="admin-panel__metrics">
+            <li><strong>EARLY100</strong><span>100% · Once · max 100</span></li>
+            <li><strong>FAMILY50</strong><span>50% · 3 months</span></li>
+            <li><strong>LIFETIME20</strong><span>20% · Forever</span></li>
+          </ul>
+          <p class="admin-panel__placeholder">Fields: code, type (%, fixed, trial), duration, max uses, expiry</p>
+        </section>
       </div>
     `;
   }

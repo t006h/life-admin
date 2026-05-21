@@ -1,0 +1,205 @@
+/**
+ * Life Admin — UX v2 (calm, mobile-first)
+ */
+
+.app-bar__center--global {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.app-bar__greeting {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.app-bar__tagline {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+#accountRole {
+  display: none !important;
+}
+
+#founderFlags,
+#adminPanel {
+  display: none !important;
+}
+
+.daily-briefing__feed,
+.daily-briefing__insights {
+  margin-top: 12px;
+}
+
+.intent-hero--today {
+  margin: 16px 0 20px;
+  padding: 20px 18px;
+  background: var(--surface);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.intent-form--hero .intent-form__row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.intent-form--hero .intent-form__input {
+  flex: 1;
+  padding: 16px 18px;
+  font-size: 1.0625rem;
+  border-radius: 16px;
+  border: 2px solid rgba(61, 139, 122, 0.25);
+  text-align: center;
+}
+
+.intent-form__mic,
+.onboarding__mic {
+  flex-shrink: 0;
+  width: 48px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.tab-bar__icon--menu {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1;
+  background: none;
+  mask: none;
+  -webkit-mask: none;
+  opacity: 1;
+}
+
+.upgrade-modal {
+  border: none;
+  padding: 0;
+  background: transparent;
+  max-width: 100%;
+}
+
+.upgrade-modal::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.upgrade-modal__panel {
+  width: min(360px, calc(100vw - 32px));
+  margin: auto;
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.upgrade-modal__title {
+  margin: 0 0 8px;
+  font-size: 1.125rem;
+}
+
+.upgrade-modal__body {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+}
+
+.upgrade-modal__list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 0.875rem;
+}
+
+.upgrade-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.onboarding__hero-input-wrap {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.onboarding__hero-input-wrap .onboarding__intent-input--hero {
+  flex: 1;
+}
+
+.onboarding__sub--prompt {
+  font-size: 1.0625rem;
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.onboarding__clarify {
+  width: 100%;
+  max-width: 320px;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.onboarding__clarify-lead {
+  margin: 0 0 4px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.onboarding__clarify-sub {
+  margin: 0 0 12px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.onboarding__panel--open {
+  display: block;
+}
+
+.side-menu__section-title {
+  margin: 16px 0 6px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.side-menu__link--locked {
+  opacity: 0.55;
+}
+
+.side-menu__link--locked::after {
+  content: " · Premium";
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--teal);
+}
+
+.profile-panel {
+  padding: 8px 0 16px;
+  text-align: left;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+
+.profile-panel__plan {
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.profile-panel__row {
+  margin: 0 0 4px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}

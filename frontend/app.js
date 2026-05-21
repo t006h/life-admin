@@ -275,13 +275,15 @@ const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
 const briefingEls = {
-  headerGreeting: $("#headerGreeting"),
+  globalHeaderGreeting: $("#globalHeaderGreeting"),
   statImportant: $("#statImportant"),
   statUpcoming: $("#statUpcoming"),
   statOverdue: $("#statOverdue"),
   statCompleted: $("#statCompleted"),
   briefingPriorities: $("#briefingPriorities"),
+  briefingPrioritiesTop: $("#briefingPrioritiesTop"),
   briefingInsights: $("#briefingInsights"),
+  briefingInsightsTop: $("#briefingInsightsTop"),
   headerNotificationBadge: $("#headerNotificationBadge"),
   headerBellDot: $("#headerBellDot"),
 };
@@ -416,40 +418,131 @@ function toggleFilterPanel(which) {
 
 function getPrimaryTab(view) {
   if (view === "vault" || CATEGORIES[view]) return "vault";
-  if (view === "ai") return "ai";
   return "dashboard";
+}
+
+function firstNameFromContext() {
+  const full = Access().getUserContext().fullName?.trim();
+  if (!full) return "there";
+  return full.split(/\s+/)[0];
+}
+
+function renderGlobalHeader() {
+  if (briefingEls.globalHeaderGreeting) {
+    briefingEls.globalHeaderGreeting.textContent = `Hi ${firstNameFromContext()} 👋`;
+  }
+}
+
+function configureMainTabBar(view) {
+  const onToday = view === "dashboard" || view === "tasks";
+  const items = $$("#mainTabBar .tab-bar__item");
+  if (!items.length) return;
+  const slot1 = items[0];
+  const label1 = slot1?.querySelector("[data-tab-label]");
+  const icon1 = slot1?.querySelector(".tab-bar__icon");
+  if (onToday) {
+    slot1.dataset.nav = "tasks";
+    if (label1) label1.textContent = "Tasks";
+    if (icon1) icon1.className = "tab-bar__icon tab-bar__icon--list";
+  } else {
+    slot1.dataset.nav = "dashboard";
+    if (label1) label1.textContent = "Today";
+    if (icon1) icon1.className = "tab-bar__icon tab-bar__icon--home";
+  }
+}
+
+function handleTabNav(nav) {
+  if (nav === "menu") {
+    uiEls.sideMenu?.showModal();
+    return;
+  }
+  if (nav === "tasks") {
+    switchView("dashboard");
+    toggleFilterPanel("tasks");
+    document.querySelector(".app")?.classList.add("app--expanded");
+    return;
+  }
+  switchView(nav);
+}
+
+function addMenuSection(nav, title) {
+  const h = document.createElement("p");
+  h.className = "side-menu__section-title";
+  h.textContent = title;
+  nav.appendChild(h);
+}
+
+function addMenuLink(nav, { label, nav: view, feature, premiumOnly }) {
+  const locked = feature && !window.LifeAdminSubscriptions?.canUse?.(feature);
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "side-menu__link" + (locked || premiumOnly ? " side-menu__link--locked" : "");
+  btn.textContent = label;
+  btn.addEventListener("click", () => {
+    uiEls.sideMenu?.close();
+    if (locked && feature) {
+      window.LifeAdminSubscriptions?.showUpgrade?.(feature);
+      return;
+    }
+    if (premiumOnly && !Access().canAccess(Access().FEATURES.FAMILY_MANAGEMENT)) {
+      window.LifeAdminSubscriptions?.showUpgrade?.("family_activities");
+      return;
+    }
+    switchView(view);
+    document.querySelector(".app")?.classList.add("app--expanded");
+  });
+  nav.appendChild(btn);
+}
+
+function renderProfilePanel(nav) {
+  const { plan, fullName, email } = Access().getUserContext();
+  const panel = document.createElement("div");
+  panel.className = "profile-panel";
+  panel.id = "sideMenuProfile";
+  panel.innerHTML = `
+    <p class="profile-panel__plan">${Access().getPublicPlanLabel(plan)}</p>
+    <p class="profile-panel__row">${escapeHtml(fullName || "—")}</p>
+    <p class="profile-panel__row">${escapeHtml(email || "—")}</p>`;
+  const upgrade = document.createElement("button");
+  upgrade.type = "button";
+  upgrade.className = "side-menu__link";
+  upgrade.textContent = "Upgrade";
+  upgrade.addEventListener("click", () => {
+    uiEls.sideMenu?.close();
+    window.LifeAdminSubscriptions?.showUpgrade?.(
+      plan === Access().PLANS.FREE ? "workflows" : "book_for_me"
+    );
+  });
+  panel.appendChild(upgrade);
+  nav.appendChild(panel);
 }
 
 function renderSideMenu() {
   if (!uiEls.sideMenuNav) return;
   uiEls.sideMenuNav.replaceChildren();
 
-  const hint = document.createElement("p");
-  hint.className = "side-menu__hint";
-  hint.textContent = "Type on Today for almost everything. Power tools:";
-  uiEls.sideMenuNav.appendChild(hint);
+  addMenuLink(uiEls.sideMenuNav, { label: "Reminders", nav: "dashboard" });
+  addMenuLink(uiEls.sideMenuNav, {
+    label: "Active workflows",
+    nav: "life-events",
+    feature: "workflows",
+  });
+  addMenuLink(uiEls.sideMenuNav, { label: "Calendar", nav: "planning", feature: "weekly_planning" });
+  addMenuLink(uiEls.sideMenuNav, {
+    label: "Family activities",
+    nav: "family",
+    premiumOnly: true,
+  });
 
-  const links = [
-    { nav: "tasks", label: "All tasks" },
-    { nav: "planning", label: "Planning & calendar" },
-    { nav: "family", label: "Family" },
-    { nav: "life-events", label: "Life event workflows" },
-    ...Object.keys(CATEGORIES).map((k) => ({
-      nav: k,
-      label: CATEGORIES[k].label,
-    })),
-  ];
-  for (const link of links) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "side-menu__link";
-    btn.textContent = link.label;
-    btn.addEventListener("click", () => {
-      uiEls.sideMenu?.close();
-      switchView(link.nav);
-      document.querySelector(".app")?.classList.add("app--expanded");
-    });
-    uiEls.sideMenuNav.appendChild(btn);
+  addMenuSection(uiEls.sideMenuNav, "Profile");
+  renderProfilePanel(uiEls.sideMenuNav);
+
+  addMenuSection(uiEls.sideMenuNav, "Settings");
+  addMenuLink(uiEls.sideMenuNav, { label: "Notifications", nav: "dashboard" });
+
+  if (Access().isAdmin()) {
+    addMenuSection(uiEls.sideMenuNav, "Internal");
+    addMenuLink(uiEls.sideMenuNav, { label: "Admin console", nav: "life-events" });
   }
 
   const replay = document.createElement("button");
@@ -461,6 +554,17 @@ function renderSideMenu() {
     window.LifeAdminApp?.resetOnboarding?.();
   });
   uiEls.sideMenuNav.appendChild(replay);
+
+  const logout = document.createElement("button");
+  logout.type = "button";
+  logout.className = "side-menu__link side-menu__link--muted";
+  logout.textContent = "Log out";
+  logout.addEventListener("click", async () => {
+    uiEls.sideMenu?.close();
+    await window.supabaseClient?.auth?.signOut?.();
+    location.reload();
+  });
+  uiEls.sideMenuNav.appendChild(logout);
 }
 
 // --- Access control UI ---
@@ -473,54 +577,38 @@ function getFirstAccessibleCategory() {
 }
 
 function showUpgradeAlert(categoryOrFeature) {
-  const feature =
-    typeof categoryOrFeature === "string" && categoryOrFeature.startsWith("category.")
-      ? categoryOrFeature
-      : Access().CATEGORY_FEATURE[categoryOrFeature];
-  alert(Access().getUpgradeMessage(feature || Access().FEATURES.CATEGORY_SUBSCRIPTIONS));
+  const map = {
+    mot: "workflows",
+    life-events: "workflows",
+    planning: "weekly_planning",
+    family: "family_activities",
+    ai: "book_for_me",
+  };
+  const key =
+    map[categoryOrFeature] ||
+    (typeof categoryOrFeature === "string" ? categoryOrFeature : "workflows");
+  window.LifeAdminSubscriptions?.showUpgrade?.(key);
 }
 
 function renderAccountChip() {
-  const { role, plan, fullName } = Access().getUserContext();
-  const planLabel = Access().PLAN_LABELS[plan] || plan;
-  els.accountPlan.textContent = fullName ? `${fullName} · ${planLabel}` : planLabel;
-  els.accountChip.classList.toggle("account-chip--founder", Access().bypassesRestrictions());
-  els.accountChip.title = `${Access().ROLE_LABELS[role] || role} on ${planLabel} plan`;
-
-  const showRole = role === Access().ROLES.FOUNDER || role === Access().ROLES.ADMIN;
-  els.accountRole.hidden = !showRole;
-  if (showRole) {
-    els.accountRole.textContent = Access().ROLE_LABELS[role] || role;
-  }
+  const { plan, fullName } = Access().getUserContext();
+  const planLabel = Access().getPublicPlanLabel(plan);
+  els.accountPlan.textContent = fullName ? `${planLabel}` : planLabel;
+  els.accountChip.classList.remove("account-chip--founder");
+  els.accountChip.hidden = false;
+  els.accountChip.title = `${planLabel} plan`;
 }
 
 function renderFounderFlags() {
-  const showBeta = Access().canAccessBeta();
-  const showExperimental = Access().canAccessExperimental();
-  els.founderFlags.hidden = !showBeta && !showExperimental;
-  if (els.founderFlags.hidden) return;
-
-  const badges = els.founderFlags.querySelectorAll(".founder-flags__badge");
-  if (badges[0]) badges[0].hidden = !showBeta;
-  if (badges[1]) badges[1].hidden = !showExperimental;
+  if (els.founderFlags) els.founderFlags.hidden = true;
 }
 
 async function applyAccessUI() {
+  renderGlobalHeader();
   renderAccountChip();
   renderFounderFlags();
-  await window.LifeAdminAdmin.initAdminPanel(els.adminPanel);
-
-  $$(".tab-bar__item").forEach((btn) => {
-    const nav = btn.dataset.nav;
-    if (nav === "ai") {
-      const locked = !window.LifeAdminAiChief?.canUseAi?.();
-      btn.classList.toggle("tab-bar__item--locked", locked);
-      btn.setAttribute("aria-disabled", locked ? "true" : "false");
-      return;
-    }
-    btn.classList.remove("tab-bar__item--locked");
-    btn.removeAttribute("aria-disabled");
-  });
+  configureMainTabBar(currentView);
+  if (els.adminPanel) els.adminPanel.hidden = true;
 
   Object.keys(listEls).forEach((category) => {
     const view = document.querySelector(`[data-view="${category}"]`);
@@ -882,6 +970,10 @@ const workflowIntentHandlers = {
 };
 
 workflowIntentHandlers.onActivateWorkflow = async (plan, opts = {}) => {
+  if (!Access().canUseWorkflows()) {
+    window.LifeAdminSubscriptions?.showUpgrade?.("workflows");
+    return null;
+  }
   const ev = await window.LifeAdminWorkflowEngine.activatePlan(
     plan,
     workflowIntentHandlers
@@ -943,9 +1035,14 @@ async function renderAll() {
 // --- Navigation ---
 
 function syncTabBarForView(view) {
-  const tabActive = getPrimaryTab(view);
-  $$(".tab-bar__item").forEach((btn) => {
-    const active = btn.dataset.nav === tabActive;
+  configureMainTabBar(view);
+  const onToday = view === "dashboard" || view === "tasks";
+  $$("#mainTabBar .tab-bar__item").forEach((btn) => {
+    let active = false;
+    if (btn.dataset.nav === "vault") active = view === "vault" || !!CATEGORIES[view];
+    else if (btn.dataset.nav === "menu") active = false;
+    else if (btn.dataset.nav === "tasks") active = onToday;
+    else if (btn.dataset.nav === "dashboard") active = !onToday && view !== "vault" && !CATEGORIES[view];
     btn.classList.toggle("tab-bar__item--active", active);
     btn.setAttribute("aria-current", active ? "page" : null);
   });
@@ -982,15 +1079,8 @@ function switchView(view) {
     hideFabDocks();
     return;
   }
-  if (view === "ai" && !window.LifeAdminAiChief?.canUseAi?.()) {
-    currentView = view;
-    $$(".view").forEach((el) => {
-      el.classList.toggle("view--active", el.dataset.view === view);
-    });
-    syncTabBarForView(view);
-    renderAiChief();
-    hideFabDocks();
-    return;
+  if (view === "life-events" && !Access().canUseWorkflows()) {
+    window.LifeAdminSubscriptions?.showUpgrade?.("workflows");
   }
   if (CATEGORIES[view] && !Access().canAccessCategory(view)) {
     showUpgradeAlert(view);
@@ -1668,9 +1758,15 @@ async function init() {
     isLoading = false;
   }
 
-  $$(".tab-bar__item").forEach((btn) => {
-    btn.addEventListener("click", () => switchView(btn.dataset.nav));
+  $$("#mainTabBar .tab-bar__item").forEach((btn) => {
+    btn.addEventListener("click", () => handleTabNav(btn.dataset.nav));
   });
+
+  document.getElementById("intentMicBtn")?.addEventListener("click", () => {
+    alert("Voice input coming soon — type for now.");
+  });
+
+  window.LifeAdminSubscriptions?.init?.();
 
   document.querySelectorAll("[data-nav-jump]").forEach((btn) => {
     btn.addEventListener("click", () => switchView(btn.dataset.navJump));
@@ -1804,24 +1900,14 @@ async function runStartApplication() {
       emailInput: document.getElementById("onboardingEmailInput"),
       skipAuth: document.getElementById("onboardingSkipAuth"),
       userName: document.getElementById("onboardingUserName"),
-      entryPhase: document.getElementById("onboardingEntryPhase"),
-      detailsPhase: document.getElementById("onboardingDetailsPhase"),
-      reminderInput: document.getElementById("onboardingReminderInput"),
-      livePrompt: document.getElementById("onboardingLivePrompt"),
-      promptText: document.getElementById("onboardingPromptText"),
-      promptSub: document.getElementById("onboardingPromptSub"),
-      detailsLead: document.getElementById("onboardingDetailsLead"),
-      detailsForm: document.getElementById("onboardingDetailsForm"),
-      detailTitleLabel: document.getElementById("onboardingDetailTitleLabel"),
-      detailTitle: document.getElementById("onboardingDetailTitle"),
-      detailDueDate: document.getElementById("onboardingDetailDueDate"),
-      detailPriorityWrap: document.getElementById("onboardingDetailPriorityWrap"),
-      detailPriority: document.getElementById("onboardingDetailPriority"),
-      detailNotesWrap: document.getElementById("onboardingDetailNotesWrap"),
-      detailNotes: document.getElementById("onboardingDetailNotes"),
-      detailsSave: document.getElementById("onboardingDetailsSave"),
-      detailsBack: document.getElementById("onboardingDetailsBack"),
-      reminderStatus: document.getElementById("onboardingReminderStatus"),
+      intentInput: document.getElementById("onboardingIntentInput"),
+      examples: document.getElementById("onboardingExamples"),
+      clarifyPhase: document.getElementById("onboardingClarifyPhase"),
+      clarifyLead: document.getElementById("onboardingClarifyLead"),
+      clarifyFields: document.getElementById("onboardingClarifyFields"),
+      clarifyForm: document.getElementById("onboardingClarifyForm"),
+      clarifySave: document.getElementById("onboardingClarifySave"),
+      micBtn: document.getElementById("onboardingMicBtn"),
       completeTitle: document.getElementById("onboardingCompleteTitle"),
       completeSub: document.getElementById("onboardingCompleteSub"),
       completeList: document.getElementById("onboardingCompleteList"),
@@ -1863,6 +1949,10 @@ window.LifeAdminApp = {
   refreshNotificationCenter,
   enterMainApp,
   showError: showAppError,
+  openProfile: () => {
+    uiEls.sideMenu?.showModal();
+    document.getElementById("sideMenuProfile")?.scrollIntoView({ behavior: "smooth" });
+  },
   resetOnboarding: () => {
     window.LifeAdminOnboarding?.resetForDev?.();
     localStorage.removeItem("life_admin_first_intent");

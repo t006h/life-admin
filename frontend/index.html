@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="os-theme.css">
   <link rel="stylesheet" href="onboarding.css">
   <link rel="stylesheet" href="deploy.css">
+  <link rel="stylesheet" href="life-admin-ux.css">
   <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="manifest" href="/manifest.webmanifest">
@@ -39,14 +40,14 @@
   <button type="button" class="btn-install-pwa" id="btnInstallPwa" hidden>Install app</button>
   <!-- Onboarding flow (first visit) -->
   <div class="onboarding" id="onboardingShell" hidden>
-    <section class="onboarding__screen" data-onboarding-step="landing" hidden>
+    <section class="onboarding__screen onboarding__screen--active" data-onboarding-step="landing">
       <p class="onboarding__logo">Life Admin</p>
       <h1 class="onboarding__headline">Remember less.<br>Live more.</h1>
       <p class="onboarding__sub">Your family life, handled calmly — one request at a time.</p>
       <button type="button" class="onboarding__cta" id="onboardingGetStarted">Get started</button>
     </section>
 
-    <section class="onboarding__screen onboarding__screen--active" data-onboarding-step="auth">
+    <section class="onboarding__screen" data-onboarding-step="auth" hidden>
       <p class="onboarding__logo">Sign in</p>
       <h2 class="onboarding__headline" style="font-size:1.75rem">Save your progress</h2>
       <p class="onboarding__sub">Optional for now — you can always continue without signing in.</p>
@@ -62,53 +63,30 @@
       <button type="button" class="onboarding__skip" id="onboardingSkipAuth">Continue without signing in</button>
     </section>
 
-    <section class="onboarding__screen" data-onboarding-step="reminder" hidden>
-      <h2 class="onboarding__headline onboarding__headline--step" id="onboardingUserName">there</h2>
+    <section class="onboarding__screen" data-onboarding-step="intake" hidden>
+      <h2 class="onboarding__headline onboarding__headline--step" id="onboardingUserName">Hi there 👋</h2>
+      <p class="onboarding__sub onboarding__sub--prompt">What would you like help with today?</p>
       <div class="onboarding__intent onboarding__intent--centered">
-        <div class="onboarding__entry" id="onboardingEntryPhase">
-          <div class="onboarding__intent-form">
-            <input type="text" class="onboarding__intent-input onboarding__intent-input--hero" id="onboardingReminderInput" placeholder="add a task or a reminder" autocomplete="off" enterkeyhint="done" aria-label="add a task or a reminder" oninput="LifeAdminOnboarding.onInput(event)">
-          </div>
-          <div class="onboarding__live-prompt" id="onboardingLivePrompt" hidden aria-live="polite">
-            <p class="onboarding__live-prompt-text" id="onboardingPromptText"></p>
-            <p class="onboarding__live-prompt-sub" id="onboardingPromptSub"></p>
-          </div>
+        <div class="onboarding__hero-input-wrap">
+          <input type="text" class="onboarding__intent-input onboarding__intent-input--hero" id="onboardingIntentInput" placeholder="Add a reminder or task" autocomplete="off" enterkeyhint="go" aria-label="Add a reminder or task">
+          <button type="button" class="onboarding__mic" id="onboardingMicBtn" aria-label="Voice input">🎤</button>
         </div>
-        <div class="onboarding__details" id="onboardingDetailsPhase" hidden>
-          <p class="onboarding__details-lead" id="onboardingDetailsLead">Add a few details</p>
-          <form class="onboarding__details-form" id="onboardingDetailsForm">
-            <label class="onboarding__field">
-              <span class="onboarding__field-label" id="onboardingDetailTitleLabel">Title</span>
-              <input type="text" class="onboarding__field-input" id="onboardingDetailTitle" required>
-            </label>
-            <label class="onboarding__field">
-              <span class="onboarding__field-label">Due date</span>
-              <input type="date" class="onboarding__field-input" id="onboardingDetailDueDate" required>
-            </label>
-            <label class="onboarding__field" id="onboardingDetailPriorityWrap" hidden>
-              <span class="onboarding__field-label">Priority</span>
-              <select class="onboarding__field-input" id="onboardingDetailPriority">
-                <option value="low">Low</option>
-                <option value="medium" selected>Medium</option>
-                <option value="high">High</option>
-              </select>
-            </label>
-            <label class="onboarding__field" id="onboardingDetailNotesWrap" hidden>
-              <span class="onboarding__field-label">Notes <span class="onboarding__optional">(optional)</span></span>
-              <input type="text" class="onboarding__field-input" id="onboardingDetailNotes" placeholder="Extra details">
-            </label>
-            <button type="submit" class="onboarding__cta" id="onboardingDetailsSave">Save</button>
-            <button type="button" class="onboarding__cta onboarding__cta--secondary" id="onboardingDetailsBack">Back</button>
+        <div class="onboarding__examples" id="onboardingExamples"></div>
+        <div class="onboarding__clarify onboarding__panel--open" id="onboardingClarifyPhase" hidden>
+          <p class="onboarding__clarify-lead" id="onboardingClarifyLead">I can set this up for you.</p>
+          <p class="onboarding__clarify-sub">Please provide:</p>
+          <form class="onboarding__clarify-form" id="onboardingClarifyForm">
+            <div id="onboardingClarifyFields"></div>
+            <button type="submit" class="onboarding__cta" id="onboardingClarifySave">Save</button>
           </form>
         </div>
-        <p class="onboarding__status" id="onboardingReminderStatus" aria-live="polite"></p>
       </div>
     </section>
 
     <section class="onboarding__screen" data-onboarding-step="complete" hidden>
-      <p class="onboarding__logo">Done</p>
-      <h2 class="onboarding__headline" id="onboardingCompleteTitle" style="font-size:1.5rem">Reminder added</h2>
-      <p class="onboarding__sub" id="onboardingCompleteSub">Add another, or head to Today.</p>
+      <p class="onboarding__logo">Done ✓</p>
+      <h2 class="onboarding__headline" id="onboardingCompleteTitle" style="font-size:1.5rem">Done ✓</h2>
+      <p class="onboarding__sub" id="onboardingCompleteSub">Created:</p>
       <ul class="onboarding__complete-list" id="onboardingCompleteList"></ul>
       <div class="onboarding__complete-actions">
         <button type="button" class="onboarding__cta" id="onboardingAddAnother">Add another</button>
@@ -126,9 +104,9 @@
       <button type="button" class="app-bar__menu" id="btnMenu" aria-label="Menu">
         <span class="app-bar__menu-icon"></span>
       </button>
-      <div class="app-bar__center">
-        <h1 class="app-bar__title">Life Admin</h1>
-        <p class="app-bar__greeting" id="headerGreeting">Good morning ☀️</p>
+      <div class="app-bar__center app-bar__center--global">
+        <h1 class="app-bar__greeting" id="globalHeaderGreeting">Hi there 👋</h1>
+        <p class="app-bar__tagline" id="globalHeaderTagline">Remembers and handles life so your family doesn't have to</p>
       </div>
       <button type="button" class="app-bar__bell" id="btnBell" aria-label="Notifications">
         <span class="app-bar__bell-icon" aria-hidden="true">🔔</span>
@@ -137,7 +115,6 @@
       </button>
       <div class="account-chip account-chip--header" id="accountChip" hidden>
         <span class="account-chip__plan" id="accountPlan"></span>
-        <span class="account-chip__role" id="accountRole" hidden></span>
       </div>
     </header>
 
@@ -145,44 +122,6 @@
       <!-- Today -->
       <section class="view view--active" id="view-dashboard" data-view="dashboard">
         <div class="screen-scroll screen-scroll--today" id="todayScroll">
-          <!-- Intent-first hero -->
-          <p class="os-tagline" id="osTagline">Remembers and handles life so your family doesn't have to.</p>
-
-          <section class="intent-hero" aria-label="What do you need help with?">
-            <h2 class="intent-hero__title">What do you need help with?</h2>
-            <p class="intent-hero__sub">Type naturally — no menus required.</p>
-            <form class="intent-form" id="intentForm">
-              <label class="intent-form__label visually-hidden" for="intentInput">Your request</label>
-              <input
-                type="text"
-                class="intent-form__input"
-                id="intentInput"
-                name="intent"
-                placeholder="Renew my passport, moving house, school trip…"
-                autocomplete="off"
-                enterkeyhint="go"
-              >
-              <button type="submit" class="intent-form__submit" id="intentSubmit">Go</button>
-            </form>
-            <div class="intent-examples" id="intentExamples" aria-label="Examples"></div>
-            <article class="intent-result" id="intentResult" hidden>
-              <div class="intent-result__head">
-                <span class="intent-result__icon" id="intentResultIcon" aria-hidden="true">✨</span>
-                <p class="intent-result__summary" id="intentResultSummary"></p>
-              </div>
-              <p class="intent-plan-meta" id="intentPlanMeta" hidden></p>
-              <div class="intent-actions" id="intentActions"></div>
-              <section class="wf-context-section" id="intentContextSection" hidden>
-                <h3 class="wf-forget-section__title">Using your context</h3>
-                <ul class="wf-context-list" id="intentContextList"></ul>
-              </section>
-              <section class="wf-forget-section" id="intentForgetSection" hidden>
-                <h3 class="wf-forget-section__title">What might I be forgetting?</h3>
-                <ul class="wf-forget-list" id="intentForgetting"></ul>
-              </section>
-            </article>
-          </section>
-
           <article class="ui-card ui-card--calm daily-briefing" id="dailyBriefing">
             <header class="ui-card__header ui-card__header--compact">
               <div class="ui-card__title-row">
@@ -211,7 +150,42 @@
                 <span class="os-stat-pill__label">Overdue</span>
               </div>
             </div>
+            <div class="daily-briefing__feed os-list-wrap os-list--capped">
+              <ul class="priority-list" id="briefingPrioritiesTop"></ul>
+            </div>
+            <div class="daily-briefing__insights os-list-wrap os-list--capped">
+              <ul class="insight-list" id="briefingInsightsTop"></ul>
+            </div>
           </article>
+
+          <section class="intent-hero intent-hero--today" aria-label="What do you need help with?">
+            <h2 class="intent-hero__title">What do you need help with?</h2>
+            <form class="intent-form intent-form--hero" id="intentForm">
+              <label class="intent-form__label visually-hidden" for="intentInput">Your request</label>
+              <div class="intent-form__row">
+                <input type="text" class="intent-form__input" id="intentInput" name="intent" placeholder="Add a reminder or task" autocomplete="off" enterkeyhint="go">
+                <button type="button" class="intent-form__mic" id="intentMicBtn" aria-label="Voice input">🎤</button>
+                <button type="submit" class="intent-form__submit" id="intentSubmit">Go</button>
+              </div>
+            </form>
+            <div class="intent-examples" id="intentExamples" aria-label="Examples"></div>
+            <article class="intent-result" id="intentResult" hidden>
+              <div class="intent-result__head">
+                <span class="intent-result__icon" id="intentResultIcon" aria-hidden="true">✨</span>
+                <p class="intent-result__summary" id="intentResultSummary"></p>
+              </div>
+              <p class="intent-plan-meta" id="intentPlanMeta" hidden></p>
+              <div class="intent-actions" id="intentActions"></div>
+              <section class="wf-context-section" id="intentContextSection" hidden>
+                <h3 class="wf-forget-section__title">Using your context</h3>
+                <ul class="wf-context-list" id="intentContextList"></ul>
+              </section>
+              <section class="wf-forget-section" id="intentForgetSection" hidden>
+                <h3 class="wf-forget-section__title">What might I be forgetting?</h3>
+                <ul class="wf-forget-list" id="intentForgetting"></ul>
+              </section>
+            </article>
+          </section>
 
           <article class="ui-card ui-card--calm os-family-card" id="todayFamilyOverview" hidden>
             <header class="ui-card__header ui-card__header--compact">
@@ -837,18 +811,18 @@
       </div>
     </div>
 
-    <nav class="tab-bar tab-bar--intent" aria-label="Main navigation">
-      <button type="button" class="tab-bar__item tab-bar__item--active" data-nav="dashboard" aria-current="page">
-        <span class="tab-bar__icon tab-bar__icon--home" aria-hidden="true"></span>
-        <span>Today</span>
+    <nav class="tab-bar tab-bar--intent" id="mainTabBar" aria-label="Main navigation">
+      <button type="button" class="tab-bar__item tab-bar__item--active" data-nav="tasks" data-tab-slot="1" aria-current="page">
+        <span class="tab-bar__icon tab-bar__icon--list" aria-hidden="true"></span>
+        <span class="tab-bar__label" data-tab-label="1">Tasks</span>
       </button>
-      <button type="button" class="tab-bar__item" data-nav="vault">
+      <button type="button" class="tab-bar__item" data-nav="vault" data-tab-slot="2">
         <span class="tab-bar__icon tab-bar__icon--shield" aria-hidden="true"></span>
-        <span>Vault</span>
+        <span class="tab-bar__label" data-tab-label="2">Vault</span>
       </button>
-      <button type="button" class="tab-bar__item" data-nav="ai">
-        <span class="tab-bar__icon tab-bar__icon--ai" aria-hidden="true"></span>
-        <span>AI</span>
+      <button type="button" class="tab-bar__item" data-nav="menu" data-tab-slot="3">
+        <span class="tab-bar__icon tab-bar__icon--menu" aria-hidden="true">☰</span>
+        <span class="tab-bar__label" data-tab-label="3">Menu</span>
       </button>
     </nav>
   </div>
@@ -866,6 +840,36 @@
       <div class="notification-center__filters" id="notificationFilters" role="tablist" aria-label="Filter notifications"></div>
       <ul class="notification-center__list" id="notificationList"></ul>
       <p class="empty-line notification-center__empty" id="notificationEmpty" hidden>No notifications in this category.</p>
+    </div>
+  </dialog>
+
+  <!-- Upgrade prompt (soft gate) -->
+  <dialog class="upgrade-modal" id="upgradeModal">
+    <div class="upgrade-modal__panel">
+      <h2 class="upgrade-modal__title" id="upgradeModalTitle">Upgrade</h2>
+      <p class="upgrade-modal__body" id="upgradeModalBody"></p>
+      <div class="upgrade-modal__tier" id="upgradePremiumList">
+        <p class="upgrade-modal__tier-title">Premium includes:</p>
+        <ul class="upgrade-modal__list">
+          <li>Unlimited workflows</li>
+          <li>Shared family coordination</li>
+          <li>Smart suggestions</li>
+          <li>Weekly planning</li>
+        </ul>
+      </div>
+      <div class="upgrade-modal__tier" id="upgradeChiefList" hidden>
+        <p class="upgrade-modal__tier-title">AI Chief of Staff includes:</p>
+        <ul class="upgrade-modal__list">
+          <li>Book for me</li>
+          <li>Draft for me</li>
+          <li>Execute workflows automatically</li>
+          <li>Predictive suggestions</li>
+        </ul>
+      </div>
+      <div class="upgrade-modal__actions">
+        <button type="button" class="onboarding__cta" id="upgradeModalUpgrade">Upgrade</button>
+        <button type="button" class="onboarding__cta onboarding__cta--secondary" id="upgradeModalDismiss">Not now</button>
+      </div>
     </div>
   </dialog>
 
@@ -1227,8 +1231,10 @@
   <script src="family.js?v=20260521"></script>
   <script src="planning-ai.js?v=20260523"></script>
   <script src="planning.js?v=20260523"></script>
-  <script src="intent-engine.js?v=20260521f"></script>
-  <script src="onboarding.js?v=20260521h"></script>
+  <script src="subscriptions.js?v=20260522"></script>
+  <script src="onboarding-fields.js?v=20260522"></script>
+  <script src="intent-engine.js?v=20260522"></script>
+  <script src="onboarding.js?v=20260522"></script>
   <script src="os-core.js?v=20260529"></script>
   <script src="os-bindings.js?v=20260529"></script>
   <script src="action-engine.js?v=20260528"></script>
@@ -1248,6 +1254,6 @@
   <script src="notifications-center.js?v=20260522"></script>
   <script src="tasks.js?v=20260521"></script>
   <script src="today.js?v=20260523"></script>
-  <script src="app.js?v=20260529"></script>
+  <script src="app.js?v=20260522"></script>
 </body>
 </html>

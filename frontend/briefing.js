@@ -383,8 +383,10 @@
   }
 
   function renderBriefing(els, data, handlers) {
-    if (els.headerGreeting) {
-      els.headerGreeting.textContent = `${getGreetingLine()} ☀️`;
+    if (els.globalHeaderGreeting) {
+      els.globalHeaderGreeting.textContent = `Hi ${firstName(
+        window.LifeAdminAccess?.getUserContext?.()?.fullName
+      )} 👋`;
     }
 
     const o = data.overview;
@@ -393,49 +395,58 @@
     if (els.statOverdue) els.statOverdue.textContent = String(o.overdue);
     if (els.statCompleted) els.statCompleted.textContent = String(o.completedToday);
 
-    if (!els.briefingPriorities) return;
+    const priorityTargets = [
+      els.briefingPriorities,
+      els.briefingPrioritiesTop,
+    ].filter(Boolean);
+    if (priorityTargets.length === 0) return;
 
     const cap = window.LifeAdminOS?.LIST_CAP || 5;
     const priorities = (data.priorities || []).slice(0, cap);
     const insights = (data.insights || []).slice(0, cap);
 
-    els.briefingPriorities.replaceChildren();
+    priorityTargets.forEach((ul) => ul.replaceChildren());
     if (priorities.length === 0) {
-      const li = document.createElement("li");
-      li.className = "empty-line";
-      li.textContent = "Nothing urgent — enjoy your day.";
-      els.briefingPriorities.appendChild(li);
+      priorityTargets.forEach((ul) => {
+        const li = document.createElement("li");
+        li.className = "empty-line";
+        li.textContent = "Nothing urgent — enjoy your day.";
+        ul.appendChild(li);
+      });
     } else {
       for (const p of priorities) {
-        const li = document.createElement("li");
-        const accent = accentFor(p);
-        const sub = buildPrioritySubtext(p);
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = `priority-row priority-row--${accent}`;
-        btn.innerHTML = `
+        priorityTargets.forEach((ul) => {
+          const li = document.createElement("li");
+          const accent = accentFor(p);
+          const sub = buildPrioritySubtext(p);
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `priority-row priority-row--${accent}`;
+          btn.innerHTML = `
           <span class="priority-row__icon priority-row__icon--${accent}">${p.icon}</span>
           <span class="priority-row__body">
             <span class="priority-row__title">${escape(p.text)}</span>
             ${sub ? `<span class="priority-row__sub">${escape(sub)}</span>` : ""}
           </span>
           <span class="priority-row__chev" aria-hidden="true">›</span>`;
-        if (p.kind !== "placeholder") {
-          if (p.taskId && handlers.onOpenTask) {
-            btn.addEventListener("click", () => handlers.onOpenTask(p.taskId));
-          } else if (p.id && handlers.onOpenReminder) {
-            btn.addEventListener("click", () => handlers.onOpenReminder(p.category, p.id));
+          if (p.kind !== "placeholder") {
+            if (p.taskId && handlers.onOpenTask) {
+              btn.addEventListener("click", () => handlers.onOpenTask(p.taskId));
+            } else if (p.id && handlers.onOpenReminder) {
+              btn.addEventListener("click", () => handlers.onOpenReminder(p.category, p.id));
+            }
           }
-        }
-        li.appendChild(btn);
-        els.briefingPriorities.appendChild(li);
+          li.appendChild(btn);
+          ul.appendChild(li);
+        });
       }
     }
 
-    if (els.briefingInsights) {
-      els.briefingInsights.replaceChildren();
-      insights.forEach((insight, i) => {
-        const item = typeof insight === "string" ? { title: insight, sub: "" } : insight;
+    const insightTargets = [els.briefingInsights, els.briefingInsightsTop].filter(Boolean);
+    insightTargets.forEach((ul) => ul.replaceChildren());
+    insights.forEach((insight, i) => {
+      const item = typeof insight === "string" ? { title: insight, sub: "" } : insight;
+      insightTargets.forEach((ul) => {
         const li = document.createElement("li");
         li.className = "insight-row";
         const icon =
@@ -448,9 +459,9 @@
             <span class="insight-row__title">${escape(item.title)}</span>
             ${item.sub ? `<span class="insight-row__sub">${escape(item.sub)}</span>` : ""}
           </span>`;
-        els.briefingInsights.appendChild(li);
+        ul.appendChild(li);
       });
-    }
+    });
 
     const count = data.notificationCount || 0;
     if (els.headerNotificationBadge) {

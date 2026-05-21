@@ -34,6 +34,18 @@
     PLANNING_CALENDAR: "planning.calendar",
     LIFE_EVENTS: "life.events",
     CONTEXT_MEMORY: "context.memory",
+    VAULT_BASIC: "vault.basic",
+    VAULT_UNLIMITED: "vault.unlimited",
+    WORKFLOWS: "workflows",
+    SMART_SUGGESTIONS: "smart.suggestions",
+    WEEKLY_PLANNING: "weekly.planning",
+    FAMILY_ACTIVITIES: "family.activities",
+    BRAIN_DUMP: "brain.dump",
+    BOOK_FOR_ME: "ai.book_for_me",
+    DRAFT_FOR_ME: "ai.draft_for_me",
+    EXECUTE_WORKFLOWS: "ai.execute_workflows",
+    PREDICTIVE_SUGGESTIONS: "ai.predictive",
+    AI_PLANNING: "ai.planning",
     BETA: "features.beta",
     EXPERIMENTAL: "features.experimental",
   });
@@ -64,6 +76,10 @@
       FEATURES.CATEGORY_LICENCE,
       FEATURES.NOTIFICATIONS_BASIC,
       FEATURES.DASHBOARD_TODAY,
+      FEATURES.VAULT_BASIC,
+      FEATURES.BRAIN_DUMP,
+      FEATURES.ITEMS_UNLIMITED,
+      FEATURES.AI_ASSISTANT,
     ],
     [PLANS.FAMILY_PREMIUM]: [
       FEATURES.CATEGORY_MOT,
@@ -79,6 +95,11 @@
       FEATURES.PLANNING_CALENDAR,
       FEATURES.LIFE_EVENTS,
       FEATURES.CONTEXT_MEMORY,
+      FEATURES.VAULT_UNLIMITED,
+      FEATURES.WORKFLOWS,
+      FEATURES.SMART_SUGGESTIONS,
+      FEATURES.WEEKLY_PLANNING,
+      FEATURES.FAMILY_ACTIVITIES,
     ],
     [PLANS.AI_CHIEF_OF_STAFF]: [
       FEATURES.CATEGORY_MOT,
@@ -95,6 +116,16 @@
       FEATURES.PLANNING_CALENDAR,
       FEATURES.LIFE_EVENTS,
       FEATURES.CONTEXT_MEMORY,
+      FEATURES.VAULT_UNLIMITED,
+      FEATURES.WORKFLOWS,
+      FEATURES.SMART_SUGGESTIONS,
+      FEATURES.WEEKLY_PLANNING,
+      FEATURES.FAMILY_ACTIVITIES,
+      FEATURES.BOOK_FOR_ME,
+      FEATURES.DRAFT_FOR_ME,
+      FEATURES.EXECUTE_WORKFLOWS,
+      FEATURES.PREDICTIVE_SUGGESTIONS,
+      FEATURES.AI_PLANNING,
       FEATURES.BETA,
       FEATURES.EXPERIMENTAL,
     ],
@@ -127,6 +158,12 @@
     [PLANS.AI_CHIEF_OF_STAFF]: "AI Chief of Staff",
   });
 
+  const PUBLIC_PLAN_LABELS = Object.freeze({
+    [PLANS.FREE]: "Free",
+    [PLANS.FAMILY_PREMIUM]: "Premium",
+    [PLANS.AI_CHIEF_OF_STAFF]: "AI Chief of Staff",
+  });
+
   const ROLE_LABELS = Object.freeze({
     [ROLES.USER]: "User",
     [ROLES.FOUNDER]: "Founder",
@@ -148,6 +185,16 @@
     [FEATURES.FAMILY_MANAGEMENT]: PLANS.FAMILY_PREMIUM,
     [FEATURES.PLANNING_CALENDAR]: PLANS.FAMILY_PREMIUM,
     [FEATURES.LIFE_EVENTS]: PLANS.FAMILY_PREMIUM,
+    [FEATURES.WORKFLOWS]: PLANS.FAMILY_PREMIUM,
+    [FEATURES.VAULT_UNLIMITED]: PLANS.FAMILY_PREMIUM,
+    [FEATURES.SMART_SUGGESTIONS]: PLANS.FAMILY_PREMIUM,
+    [FEATURES.WEEKLY_PLANNING]: PLANS.FAMILY_PREMIUM,
+    [FEATURES.FAMILY_ACTIVITIES]: PLANS.FAMILY_PREMIUM,
+    [FEATURES.BOOK_FOR_ME]: PLANS.AI_CHIEF_OF_STAFF,
+    [FEATURES.DRAFT_FOR_ME]: PLANS.AI_CHIEF_OF_STAFF,
+    [FEATURES.EXECUTE_WORKFLOWS]: PLANS.AI_CHIEF_OF_STAFF,
+    [FEATURES.PREDICTIVE_SUGGESTIONS]: PLANS.AI_CHIEF_OF_STAFF,
+    [FEATURES.AI_PLANNING]: PLANS.AI_CHIEF_OF_STAFF,
     [FEATURES.BETA]: PLANS.AI_CHIEF_OF_STAFF,
     [FEATURES.EXPERIMENTAL]: PLANS.AI_CHIEF_OF_STAFF,
   });
@@ -224,9 +271,25 @@
     return UPGRADE_HINT[feature] || PLANS.FAMILY_PREMIUM;
   }
 
+  function getPublicPlanLabel(plan) {
+    return PUBLIC_PLAN_LABELS[normalizePlan(plan)] || "Free";
+  }
+
   function getUpgradeMessage(feature) {
     const target = getUpgradePlanForFeature(feature);
-    return `Upgrade to ${PLAN_LABELS[target]} to unlock this feature.`;
+    return `Upgrade to ${getPublicPlanLabel(target)} to unlock this feature.`;
+  }
+
+  function canUseWorkflows() {
+    return canAccess(FEATURES.WORKFLOWS) || canAccess(FEATURES.LIFE_EVENTS);
+  }
+
+  function isInternalRole() {
+    return context.role === ROLES.FOUNDER || context.role === ROLES.ADMIN;
+  }
+
+  function shouldShowRoleInUI() {
+    return context.role === ROLES.ADMIN;
   }
 
   function setUserContext({ role, plan, userId, email, fullName } = {}) {
@@ -251,7 +314,12 @@
     CAPABILITIES,
     CATEGORY_FEATURE,
     PLAN_LABELS,
+    PUBLIC_PLAN_LABELS,
     ROLE_LABELS,
+    getPublicPlanLabel,
+    canUseWorkflows,
+    isInternalRole,
+    shouldShowRoleInUI,
     setUserContext,
     getUserContext,
     bypassesRestrictions,
