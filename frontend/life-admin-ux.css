@@ -7,9 +7,10 @@
 }
 
 .app-bar__center--global {
+  display: block;
   text-align: left;
-  align-items: flex-start;
   width: 100%;
+  max-width: 100%;
   min-width: 0;
 }
 
@@ -21,8 +22,9 @@
 }
 
 .app-bar__tagline {
+  display: block;
   margin: 2px 0 0;
-  font-size: clamp(0.5625rem, 2.5vw, 0.8125rem);
+  font-size: clamp(0.5625rem, 2.55vw, 0.8125rem);
   color: var(--text-muted);
   line-height: 1.2;
   font-weight: 500;
@@ -30,6 +32,12 @@
   white-space: nowrap;
   width: 100%;
   max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app--life-os .app-bar__tagline {
+  white-space: nowrap;
 }
 
 #accountRole {
