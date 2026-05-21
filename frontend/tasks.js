@@ -3,6 +3,7 @@
  */
 (function () {
   const TABLE = "life_admin_tasks";
+  const PENDING_TASKS_KEY = "life_admin_pending_tasks";
 
   const RECURRING_RULES = Object.freeze({
     daily: { label: "Daily", days: 1 },
@@ -154,21 +155,70 @@
     return d.innerHTML;
   }
 
+  function readPendingTasks() {
+    try {
+      const raw = localStorage.getItem(PENDING_TASKS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function writePendingTasks(list) {
+    try {
+      localStorage.setItem(PENDING_TASKS_KEY, JSON.stringify(list.slice(-50)));
+    } catch (e) {
+      console.warn("Pending tasks:", e.message);
+    }
+  }
+
+  function queuePendingTask(task) {
+    const pending = readPendingTasks();
+    if (!pending.some((t) => t.id === task.id)) pending.push(task);
+    writePendingTasks(pending);
+  }
+
+  async function flushPendingTasks() {
+    const client = getClient();
+    const pending = readPendingTasks();
+    if (!pending.length) return;
+    if (!client) {
+      for (const t of pending) {
+        if (!tasks.some((x) => x.id === t.id)) tasks.push(t);
+      }
+      return;
+    }
+    for (const t of pending) {
+      await saveTask(t);
+      const idx = tasks.findIndex((x) => x.id === t.id);
+      if (idx >= 0) tasks[idx] = t;
+      else tasks.push(t);
+    }
+    localStorage.removeItem(PENDING_TASKS_KEY);
+  }
+
   async function loadTasks() {
     const client = getClient();
-    if (!client) return [];
+    if (!client) {
+      await flushPendingTasks();
+      return tasks;
+    }
     const { data, error } = await client
       .from(TABLE)
       .select("*")
       .order("due_date", { ascending: true, nullsFirst: false });
     if (error) throw error;
     tasks = (data || []).map(rowToTask);
+    await flushPendingTasks();
     return tasks;
   }
 
   async function saveTask(task) {
     const client = getClient();
-    if (!client) return;
+    if (!client) {
+      queuePendingTask(task);
+      return;
+    }
     const { error } = await client.from(TABLE).upsert(taskToRow(task));
     if (error) throw error;
   }
@@ -520,11 +570,11 @@
       subtasks: [],
       assignedTo: "me",
     };
-    await saveTask(task);
     const idx = tasks.findIndex((t) => t.id === task.id);
     const isNew = idx < 0;
     if (idx >= 0) tasks[idx] = task;
     else tasks.push(task);
+    await saveTask(task);
     if (isNew) {
       window.LifeAdminProductAnalytics?.trackTaskCreated?.({
         source: "quick",

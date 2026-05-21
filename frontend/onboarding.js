@@ -66,6 +66,7 @@
     currentMatch = null;
     if (els.intentInput) els.intentInput.value = "";
     hideClarify();
+    if (els.clarifySave) els.clarifySave.disabled = false;
   }
 
   function hideClarify() {
@@ -160,7 +161,7 @@
       if (f.required && !vals[f.id]) return;
     }
 
-    els.clarifySave.disabled = true;
+    if (els.clarifySave) els.clarifySave.disabled = true;
     const result = { reminders: 0, tasks: 0, notifications: 1, workflow: false };
 
     try {
@@ -224,7 +225,16 @@
         }
       }
 
-      lastSaved = result;
+      if (lastSaved) {
+        lastSaved = {
+          reminders: (lastSaved.reminders || 0) + result.reminders,
+          tasks: (lastSaved.tasks || 0) + result.tasks,
+          notifications: (lastSaved.notifications || 0) + result.notifications,
+          workflow: lastSaved.workflow || result.workflow,
+        };
+      } else {
+        lastSaved = result;
+      }
       localStorage.setItem(LS_FIRST_TASK, "true");
       window.LifeAdminApp?.markFirstTaskEntryDone?.();
       if (result.tasks > 0) {
@@ -233,10 +243,11 @@
       if (result.reminders > 0) {
         window.LifeAdminProductAnalytics?.trackReminderCreated?.({ source: "onboarding" });
       }
-      showComplete(result);
+      showComplete(lastSaved);
     } catch (err) {
-      alert(err.message || "Could not save");
-      els.clarifySave.disabled = false;
+      window.LifeAdminProduction?.handleError?.(err, "Could not save");
+    } finally {
+      if (els.clarifySave) els.clarifySave.disabled = false;
     }
   }
 
@@ -303,7 +314,7 @@
 
   function addAnother() {
     showStep("intake");
-    resetIntake();
+    if (els.clarifySave) els.clarifySave.disabled = false;
     els.intentInput?.focus();
   }
 

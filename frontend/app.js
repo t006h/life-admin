@@ -1946,7 +1946,48 @@ async function startApplication() {
   }
 }
 
+function initTasksModuleEarly() {
+  if (window.__life_admin_tasks_early_init) return;
+  window.__life_admin_tasks_early_init = true;
+  window.LifeAdminTasks.init(
+    {
+      taskCardList: document.getElementById("taskCardList"),
+      taskCardListPage: document.getElementById("taskCardListPage"),
+      tasksEmpty: document.getElementById("tasksEmpty"),
+      tasksEmptyPage: document.getElementById("tasksEmptyPage"),
+      btnAddTask: document.getElementById("btnAddTask"),
+      taskModal: document.getElementById("taskModal"),
+      taskForm: document.getElementById("taskForm"),
+      taskModalTitle: document.getElementById("taskModalTitle"),
+      taskModalClose: document.getElementById("taskModalClose"),
+      btnTaskDelete: document.getElementById("btnTaskDelete"),
+      btnTaskSave: document.getElementById("btnTaskSave"),
+      btnTaskBreakDown: document.getElementById("btnTaskBreakDown"),
+      fieldTaskId: document.getElementById("fieldTaskId"),
+      fieldTaskTitle: document.getElementById("fieldTaskTitle"),
+      fieldTaskDescription: document.getElementById("fieldTaskDescription"),
+      fieldTaskCategory: document.getElementById("fieldTaskCategory"),
+      fieldTaskPriority: document.getElementById("fieldTaskPriority"),
+      fieldTaskDueDate: document.getElementById("fieldTaskDueDate"),
+      fieldTaskStartDate: document.getElementById("fieldTaskStartDate"),
+      fieldTaskDuration: document.getElementById("fieldTaskDuration"),
+      fieldTaskTags: document.getElementById("fieldTaskTags"),
+      fieldTaskRecurring: document.getElementById("fieldTaskRecurring"),
+      taskRecurringFields: document.getElementById("taskRecurringFields"),
+      fieldRecurringRule: document.getElementById("fieldRecurringRule"),
+      fieldTaskProgress: document.getElementById("fieldTaskProgress"),
+      fieldTaskSubtasks: document.getElementById("fieldTaskSubtasks"),
+      taskBreakdown: document.getElementById("taskBreakdown"),
+      taskBreakdownList: document.getElementById("taskBreakdownList"),
+      fieldTaskAssignedTo: document.getElementById("fieldTaskAssignedTo"),
+    },
+    {}
+  );
+}
+
 async function runStartApplication() {
+  initTasksModuleEarly();
+
   const shell = document.getElementById("onboardingShell");
   const screens = shell ? [...shell.querySelectorAll("[data-onboarding-step]")] : [];
 
