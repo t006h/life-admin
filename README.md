@@ -5,9 +5,9 @@ AI-powered personal chief-of-staff for life administration.
 ## Deploy to Vercel
 
 1. Import this repo in [Vercel](https://vercel.com).
-2. **Framework preset:** Other (static). Root directory: repository root.
-3. **Build command:** `npm run vercel-build` (default from `vercel.json`).
-4. **Output directory:** `frontend`.
+2. **Framework preset:** Other (static).
+3. **Root Directory:** leave **empty** (repository root — do not set `frontend` here).
+4. **Build / Output:** leave empty in the dashboard so `vercel.json` applies (`buildCommand`: `npm run vercel-build`, `outputDirectory`: `frontend`).
 5. **Environment variables** (Production + Preview):
 
 | Variable | Required | Example |
@@ -21,6 +21,19 @@ AI-powered personal chief-of-staff for life administration.
 | `DEV_USER_FULL_NAME` | No | |
 
 6. Deploy. All routes rewrite to `index.html` for client-side navigation (Today / Vault / AI).
+
+### Vercel shows 404?
+
+This almost always means the **output path is wrong** in project settings:
+
+| Setting | Correct value |
+|---------|----------------|
+| Root Directory | *(empty)* |
+| Output Directory | *(empty — use `vercel.json`)* **or** `frontend` (not both `frontend` root **and** `frontend` output) |
+
+Wrong combo that causes 404: Root Directory = `frontend` **and** Output Directory = `frontend` (Vercel looks for `frontend/frontend/index.html`).
+
+After fixing settings, **Redeploy** → Deployments → ⋮ → Redeploy. Then hard-refresh the site (Cmd+Shift+R).
 
 ### Local production build
 
