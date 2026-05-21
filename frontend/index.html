@@ -63,24 +63,16 @@
     </section>
 
     <section class="onboarding__screen" data-onboarding-step="reminder" hidden>
-      <p class="onboarding__logo">Your first reminder</p>
-      <h2 class="onboarding__headline" style="font-size:1.5rem">Add a reminder</h2>
-      <p class="onboarding__sub">Type anything — we'll sort it into the right category straight away.</p>
-      <div class="onboarding__intent">
+      <h2 class="onboarding__headline onboarding__headline--step">name</h2>
+      <div class="onboarding__intent onboarding__intent--centered">
         <form class="onboarding__intent-form" id="onboardingReminderForm">
-          <input type="text" class="onboarding__intent-input" id="onboardingReminderInput" placeholder="Passport expires in March, MOT in June…" autocomplete="off" enterkeyhint="done" required>
+          <input type="text" class="onboarding__intent-input" id="onboardingReminderInput" placeholder="add a reminder or a task" autocomplete="off" enterkeyhint="done" required aria-label="add a reminder or a task">
           <div class="onboarding__category-preview" id="onboardingReminderCategory" hidden aria-live="polite">
             <span class="onboarding__category-badge" id="onboardingReminderCategoryLabel"></span>
             <span class="onboarding__category-detail" id="onboardingReminderCategoryDetail"></span>
           </div>
           <button type="submit" class="onboarding__cta" id="onboardingReminderSubmit" disabled>Add reminder</button>
         </form>
-        <div class="onboarding__examples" id="onboardingExampleChips">
-          <button type="button" class="onboarding__chip">MOT due in June</button>
-          <button type="button" class="onboarding__chip">Passport expires March 2027</button>
-          <button type="button" class="onboarding__chip">Netflix subscription £15.99</button>
-          <button type="button" class="onboarding__chip">Council tax payment</button>
-        </div>
         <p class="onboarding__status" id="onboardingReminderStatus" aria-live="polite"></p>
       </div>
     </section>
@@ -1204,7 +1196,7 @@
   <script src="family.js?v=20260521"></script>
   <script src="planning-ai.js?v=20260523"></script>
   <script src="planning.js?v=20260523"></script>
-  <script src="onboarding.js?v=20260521b"></script>
+  <script src="onboarding.js?v=20260521c"></script>
   <script src="os-core.js?v=20260529"></script>
   <script src="os-bindings.js?v=20260529"></script>
   <script src="action-engine.js?v=20260528"></script>

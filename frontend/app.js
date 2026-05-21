@@ -1810,7 +1810,6 @@ async function runStartApplication() {
       reminderCategoryLabel: document.getElementById("onboardingReminderCategoryLabel"),
       reminderCategoryDetail: document.getElementById("onboardingReminderCategoryDetail"),
       reminderStatus: document.getElementById("onboardingReminderStatus"),
-      exampleChips: document.querySelectorAll("#onboardingExampleChips .onboarding__chip"),
       completeTitle: document.getElementById("onboardingCompleteTitle"),
       completeSub: document.getElementById("onboardingCompleteSub"),
       completeList: document.getElementById("onboardingCompleteList"),

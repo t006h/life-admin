@@ -5,13 +5,6 @@
   const LS_COMPLETE = "life_admin_onboarding_v1";
   const LS_EMAIL = "life_admin_onboarding_email";
 
-  const REMINDER_EXAMPLES = [
-    "MOT due in June",
-    "Passport expires March 2027",
-    "Netflix subscription £15.99",
-    "Council tax payment",
-  ];
-
   let els = {};
   let handlers = {};
   let categorizeTimer = null;
@@ -212,16 +205,6 @@
     els.reminderForm?.addEventListener("submit", (e) => {
       e.preventDefault();
       submitReminder();
-    });
-
-    els.exampleChips?.forEach((chip) => {
-      chip.addEventListener("click", () => {
-        if (els.reminderInput) {
-          els.reminderInput.value = chip.textContent;
-          updateCategoryPreview();
-          els.reminderInput.focus();
-        }
-      });
     });
 
     els.enterApp?.addEventListener("click", finishAndEnterApp);
