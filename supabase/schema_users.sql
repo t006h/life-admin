@@ -1,0 +1,9 @@
+-- Life Admin — user architecture entry point
+--
+-- Run in order in Supabase SQL Editor:
+--   1. schema.sql
+--   2. migrations/002_roles_and_plans.sql
+--   3. migrations/003_users_architecture.sql
+--
+-- Creates: users, plan_features, role_capabilities, analytics_placeholders
+-- No billing tables.

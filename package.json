@@ -1,0 +1,19 @@
+{
+  "name": "life-admin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Life Admin — family-first AI life operating system",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build:config": "node scripts/build-config.mjs",
+    "build:icons": "node scripts/generate-icons.mjs",
+    "build": "npm run build:config && npm run build:icons",
+    "dev": "npm run build && cd frontend && python3 -m http.server 8080",
+    "vercel-build": "npm run build"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.5"
+  }
+}

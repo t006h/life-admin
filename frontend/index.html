@@ -4,144 +4,1178 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Life Admin — your AI-powered personal chief-of-staff for life administration">
-  <meta name="theme-color" content="#0f766e">
+  <meta name="theme-color" content="#3d8b7a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Life Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="os-theme.css">
+  <link rel="stylesheet" href="onboarding.css">
+  <link rel="stylesheet" href="deploy.css">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Life Admin">
+  <meta name="mobile-web-app-capable" content="yes">
+  <script src="config.js?v=20260601"></script>
+  <script src="deploy-boot.js?v=20260601"></script>
 </head>
 <body>
+  <div class="app-boot-loader" id="appBootLoader" role="status" aria-live="polite">
+    <span class="app-boot-loader__logo">Life Admin</span>
+    <div class="app-boot-loader__spinner" aria-hidden="true"></div>
+    <p class="app-boot-loader__text" id="appBootLoaderText">Loading Life Admin…</p>
+  </div>
+  <div class="app-boot-error" id="appBootError" hidden role="alert">
+    <div class="app-boot-error__panel">
+      <h1 class="app-boot-error__title">Unable to load</h1>
+      <p class="app-boot-error__msg" id="appBootErrorMessage"></p>
+      <p class="app-boot-error__detail" id="appBootErrorDetail"></p>
+      <button type="button" class="app-boot-error__retry" id="appBootErrorRetry">Try again</button>
+    </div>
+  </div>
+  <button type="button" class="btn-install-pwa" id="btnInstallPwa" hidden>Install app</button>
+  <!-- Onboarding flow (first visit) -->
+  <div class="onboarding" id="onboardingShell" hidden>
+    <section class="onboarding__screen onboarding__screen--active" data-onboarding-step="landing">
+      <p class="onboarding__logo">Life Admin</p>
+      <h1 class="onboarding__headline">Remember less.<br>Live more.</h1>
+      <p class="onboarding__sub">Your family life, handled calmly — one request at a time.</p>
+      <button type="button" class="onboarding__cta" id="onboardingGetStarted">Get started</button>
+    </section>
+
+    <section class="onboarding__screen" data-onboarding-step="auth" hidden>
+      <p class="onboarding__logo">Sign in</p>
+      <h2 class="onboarding__headline" style="font-size:1.75rem">Save your progress</h2>
+      <p class="onboarding__sub">Optional for now — you can always continue without signing in.</p>
+      <div class="onboarding__auth-grid">
+        <button type="button" class="onboarding__auth-btn onboarding__auth-btn--google" id="onboardingAuthGoogle">Continue with Google</button>
+        <button type="button" class="onboarding__auth-btn" id="onboardingAuthApple">Continue with Apple</button>
+        <button type="button" class="onboarding__auth-btn" id="onboardingAuthEmail">Continue with Email</button>
+      </div>
+      <form class="onboarding__email-form" id="onboardingEmailForm">
+        <input type="email" class="onboarding__email-input" id="onboardingEmailInput" placeholder="you@example.com" autocomplete="email" required>
+        <button type="submit" class="onboarding__cta">Send magic link</button>
+      </form>
+      <button type="button" class="onboarding__skip" id="onboardingSkipAuth">Continue without signing in</button>
+    </section>
+
+    <section class="onboarding__screen" data-onboarding-step="stress" hidden>
+      <p class="onboarding__logo">One question</p>
+      <h2 class="onboarding__headline" style="font-size:1.5rem">What usually creates the most stress?</h2>
+      <p class="onboarding__sub">We'll personalize what surfaces first.</p>
+      <div class="onboarding__options" id="onboardingStressOptions">
+        <button type="button" class="onboarding__option" data-stress-id="family">Family schedules</button>
+        <button type="button" class="onboarding__option" data-stress-id="bills">Bills &amp; finances</button>
+        <button type="button" class="onboarding__option" data-stress-id="documents">Documents</button>
+        <button type="button" class="onboarding__option" data-stress-id="household">Household</button>
+        <button type="button" class="onboarding__option" data-stress-id="everything">Everything</button>
+      </div>
+      <button type="button" class="onboarding__cta" id="onboardingStressContinue" disabled>Continue</button>
+    </section>
+
+    <section class="onboarding__screen" data-onboarding-step="first-use" hidden>
+      <p class="onboarding__logo">Your first win</p>
+      <h2 class="onboarding__headline" style="font-size:1.5rem">What do you need help with?</h2>
+      <p class="onboarding__sub">We'll create your workflow, tasks, and reminders.</p>
+      <div class="onboarding__intent">
+        <form class="onboarding__intent-form" id="onboardingFirstUseForm">
+          <input type="text" class="onboarding__intent-input" id="onboardingFirstUseInput" placeholder="Renew my passport…" autocomplete="off" enterkeyhint="go">
+          <button type="submit" class="onboarding__cta" id="onboardingFirstUseSubmit">Set it up</button>
+        </form>
+        <div class="onboarding__examples" id="onboardingExampleChips">
+          <button type="button" class="onboarding__chip">Renew my passport</button>
+          <button type="button" class="onboarding__chip">Theo has a school trip</button>
+          <button type="button" class="onboarding__chip">We're moving house</button>
+        </div>
+        <p class="onboarding__status" id="onboardingFirstUseStatus" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="onboarding__screen" data-onboarding-step="complete" hidden>
+      <p class="onboarding__logo">Done</p>
+      <h2 class="onboarding__headline" id="onboardingCompleteTitle" style="font-size:1.5rem">You're set up</h2>
+      <p class="onboarding__sub" id="onboardingCompleteSub">We've handled the admin — you can breathe now.</p>
+      <ul class="onboarding__complete-list" id="onboardingCompleteList"></ul>
+      <button type="button" class="onboarding__cta" id="onboardingEnterApp">Go to Today</button>
+    </section>
+  </div>
+
   <div class="app-banner app-banner--loading" id="appBanner" role="status" hidden>
     <span id="appBannerText">Loading your reminders…</span>
   </div>
 
-  <div class="app">
-    <header class="header">
-      <div class="header__brand">
-        <span class="header__logo" aria-hidden="true">◆</span>
-        <div>
-          <h1 class="header__title">Life Admin</h1>
-          <p class="header__tagline">Your personal chief-of-staff</p>
-        </div>
+  <div class="app app--intent-first app--life-os app--gated">
+    <header class="app-bar">
+      <button type="button" class="app-bar__menu" id="btnMenu" aria-label="Menu">
+        <span class="app-bar__menu-icon"></span>
+      </button>
+      <div class="app-bar__center">
+        <h1 class="app-bar__title">Life Admin</h1>
+        <p class="app-bar__greeting" id="headerGreeting">Good morning ☀️</p>
       </div>
-      <time class="header__date" id="todayDate"></time>
+      <button type="button" class="app-bar__bell" id="btnBell" aria-label="Notifications">
+        <span class="app-bar__bell-icon" aria-hidden="true">🔔</span>
+        <span class="app-bar__bell-dot" id="headerBellDot" hidden></span>
+        <span class="notification-badge notification-badge--header" id="headerNotificationBadge" hidden>0</span>
+      </button>
+      <div class="account-chip account-chip--header" id="accountChip" hidden>
+        <span class="account-chip__plan" id="accountPlan"></span>
+        <span class="account-chip__role" id="accountRole" hidden></span>
+      </div>
     </header>
 
     <main class="main" id="main">
-      <!-- Dashboard -->
+      <!-- Today -->
       <section class="view view--active" id="view-dashboard" data-view="dashboard">
-        <article class="priorities-card" id="prioritiesCard" hidden>
-          <header class="priorities-card__header">
-            <h3 class="priorities-card__title">Today's Priorities</h3>
-            <span class="notification-badge notification-badge--inline" id="prioritiesBadge" hidden>0</span>
-          </header>
-          <ul class="priorities-card__list" id="prioritiesList"></ul>
-        </article>
+        <div class="screen-scroll screen-scroll--today" id="todayScroll">
+          <!-- Intent-first hero -->
+          <p class="os-tagline" id="osTagline">Remembers and handles life so your family doesn't have to.</p>
 
-        <div class="section-header">
-          <div class="section-header__row">
-            <h2 class="section-title">What do I need to do today?</h2>
-            <span class="notification-badge" id="notificationBadge" hidden aria-label="Notifications">
-              <span id="notificationBadgeCount">0</span>
-            </span>
+          <section class="intent-hero" aria-label="What do you need help with?">
+            <h2 class="intent-hero__title">What do you need help with?</h2>
+            <p class="intent-hero__sub">Type naturally — no menus required.</p>
+            <form class="intent-form" id="intentForm">
+              <label class="intent-form__label visually-hidden" for="intentInput">Your request</label>
+              <input
+                type="text"
+                class="intent-form__input"
+                id="intentInput"
+                name="intent"
+                placeholder="Renew my passport, moving house, school trip…"
+                autocomplete="off"
+                enterkeyhint="go"
+              >
+              <button type="submit" class="intent-form__submit" id="intentSubmit">Go</button>
+            </form>
+            <div class="intent-examples" id="intentExamples" aria-label="Examples"></div>
+            <article class="intent-result" id="intentResult" hidden>
+              <div class="intent-result__head">
+                <span class="intent-result__icon" id="intentResultIcon" aria-hidden="true">✨</span>
+                <p class="intent-result__summary" id="intentResultSummary"></p>
+              </div>
+              <p class="intent-plan-meta" id="intentPlanMeta" hidden></p>
+              <div class="intent-actions" id="intentActions"></div>
+              <section class="wf-context-section" id="intentContextSection" hidden>
+                <h3 class="wf-forget-section__title">Using your context</h3>
+                <ul class="wf-context-list" id="intentContextList"></ul>
+              </section>
+              <section class="wf-forget-section" id="intentForgetSection" hidden>
+                <h3 class="wf-forget-section__title">What might I be forgetting?</h3>
+                <ul class="wf-forget-list" id="intentForgetting"></ul>
+              </section>
+            </article>
+          </section>
+
+          <article class="ui-card ui-card--calm daily-briefing" id="dailyBriefing">
+            <header class="ui-card__header ui-card__header--compact">
+              <div class="ui-card__title-row">
+                <span class="ui-card__icon ui-card__icon--sun" aria-hidden="true">☀️</span>
+                <h2 class="ui-card__title">Daily briefing</h2>
+              </div>
+              <button type="button" class="pill-btn pill-btn--quiet" id="btnTodayPill" aria-label="Notifications">
+                <span aria-hidden="true">🔔</span>
+              </button>
+            </header>
+            <div class="os-briefing-strip">
+              <div class="os-stat-pill">
+                <span class="os-stat-pill__value" id="statCompleted">0</span>
+                <span class="os-stat-pill__label">Done</span>
+              </div>
+              <div class="os-stat-pill">
+                <span class="os-stat-pill__value" id="statImportant">0</span>
+                <span class="os-stat-pill__label">Tasks</span>
+              </div>
+              <div class="os-stat-pill">
+                <span class="os-stat-pill__value" id="statUpcoming">0</span>
+                <span class="os-stat-pill__label">Due</span>
+              </div>
+              <div class="os-stat-pill">
+                <span class="os-stat-pill__value" id="statOverdue">0</span>
+                <span class="os-stat-pill__label">Overdue</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="ui-card ui-card--calm os-family-card" id="todayFamilyOverview" hidden>
+            <header class="ui-card__header ui-card__header--compact">
+              <div class="ui-card__title-row">
+                <span class="ui-card__icon" aria-hidden="true">👨‍👩‍👧</span>
+                <div>
+                  <h2 class="ui-card__title">Family</h2>
+                  <p class="ui-card__subtitle">Household at a glance</p>
+                </div>
+              </div>
+            </header>
+            <div class="os-family-scroll" id="todayFamilyList"></div>
+            <button type="button" class="os-family-more" id="todayFamilyMore" hidden>View family</button>
+          </article>
+
+          <div class="os-quick-actions" id="todayQuickActions" aria-label="Quick actions"></div>
+
+          <section class="os-reminders" id="todayRemindersStrip" hidden>
+            <h2 class="os-section-label">Important reminders</h2>
+            <ul class="os-reminders__list os-list--capped" id="todayRemindersList"></ul>
+            <button type="button" class="os-show-more" id="todayRemindersMore" hidden>View all</button>
+          </section>
+
+          <p class="os-scroll-hint" id="todayScrollHint">Scroll for priorities, upcoming events, and more — or open the menu anytime.</p>
+
+          <section class="act-section" id="actionCardsSection" aria-label="Actions to complete">
+            <header class="act-section__head">
+              <h2 class="act-section__title">Ready to complete</h2>
+              <p class="act-section__sub" id="actionCardsCount"></p>
+            </header>
+            <div class="act-cards-list os-list--capped" id="actionCardsList"></div>
+            <button type="button" class="os-show-more" id="actionCardsMore" hidden>Show more actions</button>
+          </section>
+
+          <section class="wf-cards-section" id="workflowCardsSection" hidden aria-label="Active workflows">
+            <h2 class="wf-cards-section__title">Active workflows</h2>
+            <div class="wf-cards-list os-list--capped" id="workflowCardsList"></div>
+            <button type="button" class="os-show-more" id="workflowCardsMore" hidden>Show more workflows</button>
+          </section>
+
+          <div class="os-today-stack" id="todayStack">
+          <article class="ui-card" id="prioritiesCard">
+            <header class="ui-card__header ui-card__header--compact">
+              <div class="ui-card__title-row">
+                <span class="ui-card__icon ui-card__icon--star" aria-hidden="true">⭐</span>
+                <h2 class="ui-card__title">Today's priorities</h2>
+              </div>
+            </header>
+            <div class="os-list-wrap os-list--capped" id="prioritiesListWrap">
+              <ul class="priority-list" id="briefingPriorities"></ul>
+            </div>
+            <button type="button" class="os-show-more" id="prioritiesMore" hidden>Show more</button>
+          </article>
+
+          <article class="ui-card today-panel" id="panelUpcoming">
+            <header class="ui-card__header ui-card__header--compact">
+              <div class="ui-card__title-row">
+                <span class="ui-card__icon" aria-hidden="true">📅</span>
+                <h2 class="ui-card__title">Upcoming</h2>
+              </div>
+              <span class="ui-card__hint">7 days</span>
+            </header>
+            <div class="os-list-wrap os-list--capped" id="upcomingListWrap">
+              <ul class="timeline-list" id="upcomingList"></ul>
+            </div>
+            <button type="button" class="os-show-more" id="upcomingMore" hidden>Show more</button>
+          </article>
+
+          <article class="ui-card" id="dailyTimelineCard">
+            <header class="ui-card__header ui-card__header--compact">
+              <div class="ui-card__title-row">
+                <span class="ui-card__icon" aria-hidden="true">🕐</span>
+                <h2 class="ui-card__title">Timeline</h2>
+              </div>
+            </header>
+            <div class="os-list-wrap os-list--capped" id="timelineListWrap">
+              <ul class="daily-timeline-list" id="dailyTimelineList"></ul>
+            </div>
+            <button type="button" class="os-show-more" id="timelineMore" hidden>Show more</button>
+          </article>
+
+          <article class="ui-card" id="insightsCard">
+            <header class="ui-card__header ui-card__header--compact">
+              <div class="ui-card__title-row">
+                <span class="ui-card__icon ui-card__icon--bulb" aria-hidden="true">💡</span>
+                <h2 class="ui-card__title">Daily insights</h2>
+              </div>
+            </header>
+            <div class="os-list-wrap os-list--capped" id="insightsListWrap">
+              <ul class="insight-list" id="briefingInsights"></ul>
+            </div>
+            <button type="button" class="os-show-more" id="insightsMore" hidden>Show more</button>
+          </article>
+
+          <!-- Vault-linked documents -->
+          <article class="ui-card" id="linkedDocsCard" hidden>
+            <header class="ui-card__header">
+              <div class="ui-card__title-row">
+                <span class="ui-card__icon" aria-hidden="true">🛡️</span>
+                <h2 class="ui-card__title">From your vault</h2>
+              </div>
+              <button type="button" class="link-btn" data-nav-jump="vault">View vault</button>
+            </header>
+            <ul class="linked-doc-list" id="linkedDocsList"></ul>
+            <p class="empty-line" id="linkedDocsEmpty" hidden>No linked documents due soon.</p>
+          </article>
+
+          <!-- Filter panels -->
+          <article class="ui-card today-panel" id="panelTasks" hidden>
+            <header class="ui-card__header">
+              <h2 class="ui-card__title">Tasks</h2>
+              <button type="button" class="today-card__action" id="btnAddTask">+ Add</button>
+            </header>
+            <div class="task-card-list" id="taskCardList"></div>
+            <p class="empty-line" id="tasksEmpty" hidden>No tasks yet.</p>
+          </article>
+
+          </div><!-- /todayStack -->
+
+          <div class="founder-flags" id="founderFlags" hidden>
+            <span class="founder-flags__badge" hidden>Beta</span>
+            <span class="founder-flags__badge" hidden>Experimental</span>
           </div>
-          <p class="section-subtitle" id="dashboardSummary"></p>
+          <aside class="admin-panel" id="adminPanel" hidden aria-label="Admin tools"></aside>
         </div>
-        <div class="dashboard-stats" id="dashboardStats"></div>
-        <div class="card-list" id="todayList"></div>
-        <p class="empty-state empty-state--inline" id="todayEmpty" hidden>
-          Nothing urgent today. You're all caught up.
-        </p>
       </section>
 
-      <!-- MOT -->
+      <!-- Tasks tab -->
+      <section class="view" id="view-tasks" data-view="tasks">
+        <div class="screen-scroll">
+          <header class="screen-intro">
+            <h2 class="screen-intro__title">Your tasks</h2>
+            <p class="screen-intro__sub">All tasks in one place</p>
+          </header>
+          <div class="task-card-list task-card-list--page" id="taskCardListPage"></div>
+          <p class="empty-line" id="tasksEmptyPage" hidden>No tasks yet.</p>
+        </div>
+      </section>
+
+      <!-- AI Chief of Staff -->
+      <section class="view" id="view-ai" data-view="ai">
+        <div class="screen-scroll ai-screen">
+          <header class="screen-intro screen-intro--calm">
+            <h2 class="screen-intro__title">AI Chief of Staff</h2>
+            <p class="screen-intro__sub">Hidden complexity — surfaced only when you need it.</p>
+          </header>
+          <div class="ai-prompt-grid" id="aiPromptGrid" aria-label="Ask AI"></div>
+          <article class="ui-card ai-upgrade-card" id="aiUpgradeCard" hidden>
+            <header class="ui-card__header">
+              <div class="ui-card__title-row">
+                <span class="ui-card__icon" aria-hidden="true">✨</span>
+                <h2 class="ui-card__title">AI Chief of Staff</h2>
+              </div>
+            </header>
+            <p class="ai-upgrade-card__text" id="aiUpgradeText"></p>
+            <p class="ai-upgrade-card__hint">Unlock proactive suggestions, weekly planning, and family mental-load relief.</p>
+          </article>
+          <div id="aiContent">
+            <article class="ui-card ai-hero">
+              <p class="ai-hero__greeting" id="aiGreeting">Good morning, Thierry</p>
+              <p class="ai-hero__label">You have:</p>
+              <ul class="ai-hero__stats">
+                <li><strong id="aiStatTasks">0</strong> important tasks</li>
+                <li><strong id="aiStatReminders">0</strong> reminders</li>
+                <li><strong id="aiStatUpcoming">0</strong> upcoming items</li>
+              </ul>
+            </article>
+
+            <article class="ui-card">
+              <header class="ui-card__header ui-card__header--compact">
+                <div class="ui-card__title-row">
+                  <span class="ui-card__icon" aria-hidden="true">✨</span>
+                  <h2 class="ui-card__title">Suggested actions</h2>
+                </div>
+              </header>
+              <div class="os-list-wrap os-list--capped" id="aiActionsWrap">
+                <ul class="ai-action-list" id="aiActionsList"></ul>
+              </div>
+              <button type="button" class="os-show-more" id="aiActionsMore" hidden>Show more</button>
+            </article>
+
+            <article class="ui-card" id="contextMemoryCard">
+              <header class="ui-card__header">
+                <div class="ui-card__title-row">
+                  <span class="ui-card__icon" aria-hidden="true">🧠</span>
+                  <h2 class="ui-card__title">What I know</h2>
+                </div>
+                <button type="button" class="btn btn--secondary btn--compact" id="btnAddMemory">Add</button>
+              </header>
+              <p class="ctx-card__sub" id="contextMemoryCount">Life context used to personalize workflows</p>
+              <div class="ctx-list-wrap" id="contextMemoryList"></div>
+            </article>
+
+            <article class="ui-card">
+              <header class="ui-card__header ui-card__header--compact">
+                <div class="ui-card__title-row">
+                  <span class="ui-card__icon" aria-hidden="true">💡</span>
+                  <h2 class="ui-card__title">What am I forgetting?</h2>
+                </div>
+              </header>
+              <div class="os-list-wrap os-list--capped" id="aiHintsWrap">
+                <ul class="ai-hint-list" id="aiHintsList"></ul>
+              </div>
+              <button type="button" class="os-show-more" id="aiHintsMore" hidden>Show more</button>
+            </article>
+
+            <article class="ui-card" id="analyticsCard">
+              <header class="ui-card__header ui-card__header--compact">
+                <div class="ui-card__title-row">
+                  <span class="ui-card__icon" aria-hidden="true">📊</span>
+                  <h2 class="ui-card__title">Life pulse</h2>
+                </div>
+                <span class="ui-card__hint">Placeholder</span>
+              </header>
+              <div class="os-analytics-grid">
+                <div class="os-analytics-tile">
+                  <div class="os-analytics-tile__value" id="lifeBalanceScore">—</div>
+                  <div class="os-analytics-tile__label">Life balance score</div>
+                </div>
+                <div class="os-analytics-tile">
+                  <div class="os-analytics-tile__value" id="completionRate">—</div>
+                  <div class="os-analytics-tile__label">Completion rate</div>
+                </div>
+                <div class="os-analytics-tile" id="stressTile">
+                  <div class="os-analytics-tile__value" id="stressIndicator" data-level="low">—</div>
+                  <div class="os-analytics-tile__label">Stress indicator</div>
+                </div>
+                <div class="os-analytics-tile">
+                  <div class="os-analytics-tile__value" id="monthlyTrend">—</div>
+                  <div class="os-analytics-tile__label">Monthly trend</div>
+                </div>
+              </div>
+              <div class="os-analytics-bars" id="analyticsTrendBars" aria-hidden="true"></div>
+            </article>
+
+            <details class="ui-card ui-card--details ai-weekly">
+              <summary class="ui-card__summary">Weekly planning</summary>
+              <div class="ui-card__body-inner">
+                <button type="button" class="btn btn--secondary btn--compact" id="btnPlanWeek">Plan my week</button>
+                <div class="ai-weekly-plan" id="aiWeeklyPlan" hidden>
+                  <h3 class="ai-weekly-plan__heading">Priority order</h3>
+                  <ol class="ai-priority-list" id="aiPriorityList"></ol>
+                  <h3 class="ai-weekly-plan__heading">Suggested time blocks</h3>
+                  <ul class="ai-blocks-list" id="aiBlocksList"></ul>
+                  <p class="ai-workload" id="aiWorkload"></p>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- Family -->
+      <section class="view" id="view-family" data-view="family">
+        <div class="screen-scroll family-screen">
+          <article class="ui-card family-upgrade-card" id="familyUpgradeCard" hidden>
+            <header class="ui-card__header">
+              <div class="ui-card__title-row">
+                <span class="ui-card__icon" aria-hidden="true">👨‍👩‍👧</span>
+                <h2 class="ui-card__title">Family Management</h2>
+              </div>
+            </header>
+            <p class="family-upgrade-card__text" id="familyUpgradeText"></p>
+            <p class="family-upgrade-card__hint">Manage household members, shared reminders, and who owns each task.</p>
+          </article>
+
+          <div id="familyContent">
+            <header class="screen-intro">
+              <h2 class="screen-intro__title">Family</h2>
+              <p class="screen-intro__sub">Your household at a glance</p>
+            </header>
+
+            <article class="ui-card">
+              <header class="ui-card__header">
+                <div class="ui-card__title-row">
+                  <span class="ui-card__icon" aria-hidden="true">👨‍👩‍👧</span>
+                  <h2 class="ui-card__title">Family members</h2>
+                </div>
+              </header>
+              <ul class="family-member-list" id="familyMemberList"></ul>
+              <p class="empty-line" id="familyMembersEmpty" hidden>No family members yet. Tap + to add someone.</p>
+            </article>
+
+            <article class="ui-card">
+              <header class="ui-card__header">
+                <div class="ui-card__title-row">
+                  <span class="ui-card__icon" aria-hidden="true">🔔</span>
+                  <h2 class="ui-card__title">Family reminders</h2>
+                </div>
+                <button type="button" class="link-btn" id="btnAddFamilyReminder">+ Add</button>
+              </header>
+              <ul class="family-reminder-list" id="familyReminderList"></ul>
+              <p class="empty-line" id="familyRemindersEmpty" hidden>No family reminders yet.</p>
+            </article>
+
+            <article class="ui-card">
+              <header class="ui-card__header">
+                <div class="ui-card__title-row">
+                  <span class="ui-card__icon" aria-hidden="true">✓</span>
+                  <h2 class="ui-card__title">Shared tasks</h2>
+                </div>
+                <button type="button" class="link-btn" id="btnAddFamilyTask">+ Add</button>
+              </header>
+              <ul class="family-task-list" id="familyTaskList"></ul>
+              <p class="empty-line" id="familyTasksEmpty" hidden>No shared tasks yet. Assign tasks to Partner, Child, or Everyone.</p>
+            </article>
+
+            <article class="ui-card">
+              <header class="ui-card__header">
+                <div class="ui-card__title-row">
+                  <span class="ui-card__icon" aria-hidden="true">💡</span>
+                  <h2 class="ui-card__title">AI insights</h2>
+                </div>
+              </header>
+              <ul class="family-insight-list" id="familyInsightsList"></ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Planning & Calendar -->
+      <section class="view" id="view-planning" data-view="planning">
+        <div class="screen-scroll planning-screen">
+          <article class="ui-card plan-upgrade-card" id="planUpgradeCard" hidden>
+            <header class="ui-card__header">
+              <h2 class="ui-card__title">Planning & Calendar</h2>
+            </header>
+            <p class="plan-upgrade-card__text" id="planUpgradeText"></p>
+          </article>
+
+          <div id="planContent">
+            <header class="screen-intro">
+              <h2 class="screen-intro__title">Planning</h2>
+              <p class="screen-intro__sub">Calendar, time blocks & weekly plan</p>
+            </header>
+
+            <div class="plan-toolbar">
+              <div class="plan-view-tabs" id="planViewTabs" role="tablist">
+                <button type="button" class="plan-view-tab plan-view-tab--active" data-plan-view="day" aria-pressed="true">Day</button>
+                <button type="button" class="plan-view-tab" data-plan-view="week" aria-pressed="false">Week</button>
+                <button type="button" class="plan-view-tab" data-plan-view="month" aria-pressed="false">Month</button>
+              </div>
+              <div class="plan-nav">
+                <button type="button" class="plan-nav__btn" id="planNavPrev" aria-label="Previous">‹</button>
+                <button type="button" class="plan-nav__today" id="planNavToday">Today</button>
+                <span class="plan-nav__label" id="planNavLabel"></span>
+                <button type="button" class="plan-nav__btn" id="planNavNext" aria-label="Next">›</button>
+              </div>
+            </div>
+
+            <article class="ui-card plan-calendar-card">
+              <div class="plan-calendar" id="planCalendar" aria-live="polite"></div>
+            </article>
+
+            <article class="ui-card">
+              <header class="ui-card__header">
+                <h2 class="ui-card__title">Drag tasks onto calendar</h2>
+                <button type="button" class="link-btn" id="btnAddTimeBlock">+ Block</button>
+              </header>
+              <ul class="plan-unscheduled" id="planUnscheduled"></ul>
+            </article>
+
+            <article class="ui-card plan-ai-card">
+              <header class="ui-card__header">
+                <div class="ui-card__title-row">
+                  <span class="ui-card__icon" aria-hidden="true">✨</span>
+                  <h2 class="ui-card__title">AI planning assistant</h2>
+                </div>
+                <button type="button" class="btn btn--secondary btn--compact" id="btnPlanWeek">Plan my week</button>
+              </header>
+              <p class="plan-workload" id="planWorkload" hidden></p>
+              <div class="plan-ai-result" id="planAiResult" hidden>
+                <h3 class="plan-ai-result__heading">Suggested schedule</h3>
+                <ul class="plan-schedule-list" id="planScheduleList"></ul>
+                <h3 class="plan-ai-result__heading">Family priorities</h3>
+                <ul class="plan-family-priority-list" id="planFamilyPriorityList"></ul>
+                <h3 class="plan-ai-result__heading">Time block suggestions</h3>
+                <ul class="plan-block-suggestions" id="planBlockSuggestions"></ul>
+              </div>
+            </article>
+
+            <article class="ui-card">
+              <header class="ui-card__header">
+                <h2 class="ui-card__title">Family events</h2>
+              </header>
+              <ul class="plan-family-events" id="planFamilyEvents"></ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Life Event Workflows -->
+      <section class="view" id="view-life-events" data-view="life-events">
+        <div class="screen-scroll life-events-screen">
+          <article class="ui-card" id="lifeEventsUpgrade" hidden>
+            <h2 class="ui-card__title">Life Event Workflows</h2>
+            <p id="lifeEventsUpgradeText"></p>
+          </article>
+
+          <div id="lifeEventsMain">
+            <div id="lifeEventsPicker">
+              <header class="screen-intro">
+                <h2 class="screen-intro__title">Life events</h2>
+                <p class="screen-intro__sub">Guided workflows with checklists, timelines & tasks</p>
+              </header>
+
+              <article class="ui-card">
+                <header class="ui-card__header">
+                  <h2 class="ui-card__title">Active workflows</h2>
+                </header>
+                <ul class="le-active-list" id="lifeEventsActiveList"></ul>
+              </article>
+
+              <article class="ui-card">
+                <header class="ui-card__header">
+                  <h2 class="ui-card__title">Start a workflow</h2>
+                </header>
+                <div class="le-workflow-grid" id="lifeEventsWorkflowGrid"></div>
+              </article>
+            </div>
+
+            <div id="lifeEventsDetail" hidden>
+              <header class="le-detail-header">
+                <button type="button" class="le-back-btn" id="leBackBtn">← Back</button>
+                <span class="le-detail-icon" id="leDetailIcon" aria-hidden="true">🏠</span>
+                <div>
+                  <h2 class="le-detail-title" id="leDetailTitle">Moving House</h2>
+                  <p class="le-detail-target" id="leTargetDate"></p>
+                </div>
+              </header>
+
+              <article class="ui-card le-progress-card">
+                <div class="le-progress-head">
+                  <span class="le-progress-pct" id="leProgressPct">0% complete</span>
+                  <span class="le-progress-meta" id="leProgressMeta"></span>
+                </div>
+                <div class="le-progress-track"><div class="le-progress-bar" id="leProgressBar"></div></div>
+              </article>
+
+              <article class="ui-card">
+                <header class="ui-card__header">
+                  <h2 class="ui-card__title">Checklist</h2>
+                </header>
+                <ul class="le-checklist" id="leChecklist"></ul>
+              </article>
+
+              <article class="ui-card">
+                <header class="ui-card__header">
+                  <h2 class="ui-card__title">Timeline</h2>
+                </header>
+                <ul class="le-timeline" id="leTimeline"></ul>
+              </article>
+
+              <article class="ui-card">
+                <header class="ui-card__header">
+                  <h2 class="ui-card__title">Tasks & reminders</h2>
+                  <span class="ui-card__hint" id="leTaskCount"></span>
+                </header>
+                <div class="le-sync-actions">
+                  <button type="button" class="btn btn--secondary btn--compact" id="btnSyncTasks">Add tasks to list</button>
+                  <button type="button" class="btn btn--secondary btn--compact" id="btnSyncReminders">Create reminders</button>
+                </div>
+              </article>
+
+              <article class="ui-card">
+                <header class="ui-card__header">
+                  <h2 class="ui-card__title">Documents needed</h2>
+                  <button type="button" class="link-btn" data-nav-jump="vault">Vault</button>
+                </header>
+                <ul class="le-documents" id="leDocuments"></ul>
+              </article>
+
+              <article class="ui-card le-ai-card">
+                <header class="ui-card__header">
+                  <div class="ui-card__title-row">
+                    <span class="ui-card__icon" aria-hidden="true">🧠</span>
+                    <h2 class="ui-card__title">What might I be forgetting?</h2>
+                  </div>
+                </header>
+                <ul class="le-ai-hints" id="leAiHints"></ul>
+              </article>
+
+              <footer class="le-detail-footer">
+                <button type="button" class="btn btn--ghost" id="btnArchiveWorkflow">Archive workflow</button>
+              </footer>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Vault -->
+      <section class="view" id="view-vault" data-view="vault">
+        <div class="screen-scroll vault-screen">
+          <header class="vault-header">
+            <h2 class="vault-header__title">Vault</h2>
+            <p class="vault-header__sub">Family documents — calm, searchable, linked to reminders</p>
+          </header>
+
+          <p class="vault-smart-banner" id="vaultSmartBanner">Smart extraction placeholder — upload or scan and we'll suggest expiry dates and reminders.</p>
+
+          <section class="vault-expiry-strip" id="vaultExpiryStrip" hidden aria-label="Expiry alerts">
+            <h3 class="vault-expiry-strip__title">Expiry alerts</h3>
+            <ul class="vault-expiry-list" id="vaultExpiryList"></ul>
+          </section>
+
+          <div class="vault-search-wrap">
+            <span class="vault-search__icon" aria-hidden="true">⌕</span>
+            <input
+              type="search"
+              class="vault-search"
+              id="vaultSearch"
+              placeholder="Search documents…"
+              autocomplete="off"
+              aria-label="Search documents"
+            >
+          </div>
+
+          <div class="vault-filters" id="vaultFilters" role="tablist" aria-label="Document filters"></div>
+
+          <div class="vault-doc-list os-list--capped" id="vaultDocList"></div>
+          <button type="button" class="os-show-more" id="vaultDocsMore" hidden>Show more documents</button>
+          <p class="empty-line vault-empty" id="vaultEmpty" hidden>Your vault is empty.</p>
+        </div>
+      </section>
+
+      <!-- Legacy category views (from vault) -->
       <section class="view" id="view-mot" data-view="mot">
-        <div class="section-header">
-          <h2 class="section-title">MOT reminders</h2>
-          <p class="section-subtitle">Vehicle test due dates</p>
+        <div class="screen-scroll">
+          <header class="screen-intro">
+            <h2 class="screen-intro__title">MOT reminders</h2>
+            <p class="screen-intro__sub">Vehicle test due dates</p>
+          </header>
+          <div class="card-list" id="motList"></div>
+          <p class="empty-line" id="motEmpty" hidden>No MOT reminders yet.</p>
         </div>
-        <div class="card-list" id="motList"></div>
-        <p class="empty-state" id="motEmpty" hidden>No MOT reminders yet.</p>
       </section>
-
-      <!-- Passport -->
       <section class="view" id="view-passport" data-view="passport">
-        <div class="section-header">
-          <h2 class="section-title">Passport expiry</h2>
-          <p class="section-subtitle">Renew before you travel</p>
+        <div class="screen-scroll">
+          <header class="screen-intro"><h2 class="screen-intro__title">Passport expiry</h2></header>
+          <div class="card-list" id="passportList"></div>
+          <p class="empty-line" id="passportEmpty" hidden>No passport reminders yet.</p>
         </div>
-        <div class="card-list" id="passportList"></div>
-        <p class="empty-state" id="passportEmpty" hidden>No passport reminders yet.</p>
       </section>
-
-      <!-- Driving licence -->
       <section class="view" id="view-licence" data-view="licence">
-        <div class="section-header">
-          <h2 class="section-title">Driving licence</h2>
-          <p class="section-subtitle">Licence renewal dates</p>
+        <div class="screen-scroll">
+          <header class="screen-intro"><h2 class="screen-intro__title">Driving licence</h2></header>
+          <div class="card-list" id="licenceList"></div>
+          <p class="empty-line" id="licenceEmpty" hidden>No licence reminders yet.</p>
         </div>
-        <div class="card-list" id="licenceList"></div>
-        <p class="empty-state" id="licenceEmpty" hidden>No licence reminders yet.</p>
       </section>
-
-      <!-- Subscriptions -->
       <section class="view" id="view-subscriptions" data-view="subscriptions">
-        <div class="section-header">
-          <h2 class="section-title">Subscriptions</h2>
-          <p class="section-subtitle">Recurring services &amp; memberships</p>
+        <div class="screen-scroll">
+          <header class="screen-intro"><h2 class="screen-intro__title">Subscriptions</h2></header>
+          <div class="card-list" id="subscriptionsList"></div>
+          <p class="empty-line" id="subscriptionsEmpty" hidden>No subscriptions yet.</p>
         </div>
-        <div class="card-list" id="subscriptionsList"></div>
-        <p class="empty-state" id="subscriptionsEmpty" hidden>No subscriptions tracked yet.</p>
       </section>
-
-      <!-- Bills -->
       <section class="view" id="view-bills" data-view="bills">
-        <div class="section-header">
-          <h2 class="section-title">Bill reminders</h2>
-          <p class="section-subtitle">Upcoming payments</p>
+        <div class="screen-scroll">
+          <header class="screen-intro"><h2 class="screen-intro__title">Bill reminders</h2></header>
+          <div class="card-list" id="billsList"></div>
+          <p class="empty-line" id="billsEmpty" hidden>No bill reminders yet.</p>
         </div>
-        <div class="card-list" id="billsList"></div>
-        <p class="empty-state" id="billsEmpty" hidden>No bill reminders yet.</p>
       </section>
     </main>
 
-    <button type="button" class="fab" id="fabAdd" aria-label="Add new item">
-      <span class="fab__icon" aria-hidden="true">+</span>
-    </button>
+    <!-- FAB dock (hidden in intent-first UI; use natural language on Today) -->
+    <div class="fab-dock fab-dock--hidden" id="fabDock" hidden>
+      <button type="button" class="filter-pill" id="filterTasks" data-filter="tasks">
+        <span class="filter-pill__icon">✓</span>
+        <span>Tasks</span>
+        <span class="filter-pill__chev">▾</span>
+      </button>
+      <div class="fab-wrap">
+        <div class="fab-menu" id="fabMenu" role="menu" hidden aria-hidden="true">
+          <button type="button" class="fab-menu__item" data-quick="task" role="menuitem">
+            <span class="fab-menu__icon fab-menu__icon--green">✓</span> Add Task
+          </button>
+          <button type="button" class="fab-menu__item" data-quick="reminder" role="menuitem">
+            <span class="fab-menu__icon fab-menu__icon--purple">🔔</span> Add Reminder
+          </button>
+          <button type="button" class="fab-menu__item" data-quick="braindump" role="menuitem">
+            <span class="fab-menu__icon fab-menu__icon--orange">💡</span> Brain Dump
+          </button>
+        </div>
+        <button type="button" class="fab" id="fabAdd" aria-label="Quick actions" aria-expanded="false">
+          <span class="fab__icon fab__icon--plus">+</span>
+          <span class="fab__icon fab__icon--close">×</span>
+        </button>
+      </div>
+      <button type="button" class="filter-pill" id="filterUpcoming" data-filter="upcoming">
+        <span class="filter-pill__icon">📅</span>
+        <span>Upcoming</span>
+        <span class="filter-pill__chev">▾</span>
+      </button>
+    </div>
 
-    <nav class="nav" aria-label="Main navigation">
-      <button type="button" class="nav__item nav__item--active" data-nav="dashboard" aria-current="page">
-        <span class="nav__icon-wrap">
-          <span class="nav__icon" aria-hidden="true">☀</span>
-          <span class="notification-badge notification-badge--nav" id="navNotificationBadge" hidden>0</span>
-        </span>
-        <span class="nav__label">Today</span>
+    <!-- Family FAB (Family tab only) -->
+    <div class="family-fab-dock" id="familyFabDock" hidden>
+      <button type="button" class="fab family-fab" id="familyFabAdd" aria-label="Add family member" aria-expanded="false">
+        <span class="fab__icon fab__icon--plus">+</span>
       </button>
-      <button type="button" class="nav__item" data-nav="mot">
-        <span class="nav__icon" aria-hidden="true">🚗</span>
-        <span class="nav__label">MOT</span>
+    </div>
+
+    <!-- Vault FAB (Vault tab only) -->
+    <div class="vault-fab-dock" id="vaultFabDock" hidden>
+      <div class="vault-fab-wrap">
+        <div class="fab-menu vault-fab-menu" id="vaultFabMenu" role="menu" hidden aria-hidden="true">
+          <button type="button" class="fab-menu__item" data-vault-action="upload" role="menuitem">
+            <span class="fab-menu__icon fab-menu__icon--green">↑</span> Upload document
+          </button>
+          <button type="button" class="fab-menu__item" data-vault-action="scan" role="menuitem">
+            <span class="fab-menu__icon fab-menu__icon--purple">📷</span> Scan document
+          </button>
+          <button type="button" class="fab-menu__item" data-vault-action="manual" role="menuitem">
+            <span class="fab-menu__icon fab-menu__icon--orange">✎</span> Add manually
+          </button>
+        </div>
+        <button type="button" class="fab vault-fab" id="vaultFabAdd" aria-label="Add document" aria-expanded="false">
+          <span class="fab__icon fab__icon--plus">+</span>
+          <span class="fab__icon fab__icon--close">×</span>
+        </button>
+      </div>
+    </div>
+
+    <nav class="tab-bar tab-bar--intent" aria-label="Main navigation">
+      <button type="button" class="tab-bar__item tab-bar__item--active" data-nav="dashboard" aria-current="page">
+        <span class="tab-bar__icon tab-bar__icon--home" aria-hidden="true"></span>
+        <span>Today</span>
       </button>
-      <button type="button" class="nav__item" data-nav="passport">
-        <span class="nav__icon" aria-hidden="true">🛂</span>
-        <span class="nav__label">Passport</span>
+      <button type="button" class="tab-bar__item" data-nav="vault">
+        <span class="tab-bar__icon tab-bar__icon--shield" aria-hidden="true"></span>
+        <span>Vault</span>
       </button>
-      <button type="button" class="nav__item" data-nav="licence">
-        <span class="nav__icon" aria-hidden="true">🪪</span>
-        <span class="nav__label">Licence</span>
-      </button>
-      <button type="button" class="nav__item" data-nav="subscriptions">
-        <span class="nav__icon" aria-hidden="true">↻</span>
-        <span class="nav__label">Subs</span>
-      </button>
-      <button type="button" class="nav__item" data-nav="bills">
-        <span class="nav__icon" aria-hidden="true">£</span>
-        <span class="nav__label">Bills</span>
+      <button type="button" class="tab-bar__item" data-nav="ai">
+        <span class="tab-bar__icon tab-bar__icon--ai" aria-hidden="true"></span>
+        <span>AI</span>
       </button>
     </nav>
   </div>
 
-  <!-- Modal -->
+  <!-- Notification center -->
+  <dialog class="notification-center" id="notificationCenter" aria-label="Notification center">
+    <div class="notification-center__panel">
+      <header class="notification-center__header">
+        <div>
+          <h2 class="notification-center__title">Notifications</h2>
+          <p class="notification-center__summary" id="ncUnreadSummary">You're all caught up</p>
+        </div>
+        <button type="button" class="modal__close" id="notificationClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="notification-center__filters" id="notificationFilters" role="tablist" aria-label="Filter notifications"></div>
+      <ul class="notification-center__list" id="notificationList"></ul>
+      <p class="empty-line notification-center__empty" id="notificationEmpty" hidden>No notifications in this category.</p>
+    </div>
+  </dialog>
+
+  <!-- Side menu -->
+  <dialog class="side-menu" id="sideMenu">
+    <div class="side-menu__panel">
+      <header class="side-menu__header">
+        <strong>Life Admin</strong>
+        <button type="button" class="modal__close" id="sideMenuClose" aria-label="Close">&times;</button>
+      </header>
+      <nav class="side-menu__nav" id="sideMenuNav"></nav>
+    </div>
+  </dialog>
+
+  <!-- Vault: upload / scan -->
+  <dialog class="modal modal--vault-scan" id="vaultScanModal">
+    <form class="modal__form" id="vaultScanForm" method="dialog">
+      <header class="modal__header">
+        <h3 class="modal__title" id="vaultScanTitle">Scan document</h3>
+        <button type="button" class="modal__close" id="vaultScanClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body">
+        <p class="vault-modal__hint">Document intelligence will suggest details and create reminders. Placeholder extraction — not real OCR yet.</p>
+        <label class="field">
+          <span class="field__label">Category (optional)</span>
+          <select class="field__input" id="fieldVaultScanCategory"></select>
+        </label>
+        <label class="field">
+          <span class="field__label">Choose file</span>
+          <input class="field__input" type="file" id="vaultScanFile" accept="image/*,.pdf,application/pdf">
+        </label>
+        <div class="vault-ocr-preview" id="ocrPreview" hidden>
+          <p class="vault-ocr-preview__title" id="ocrPreviewTitle"></p>
+          <div class="vault-ocr-preview__body" id="ocrPreviewBody"></div>
+        </div>
+      </div>
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--primary" id="vaultScanSave">Save to vault</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Vault: manual add -->
+  <dialog class="modal modal--vault-manual" id="vaultManualModal">
+    <form class="modal__form" id="vaultManualForm" method="dialog">
+      <header class="modal__header">
+        <h3 class="modal__title" id="vaultManualTitle">Add manually</h3>
+        <button type="button" class="modal__close" id="vaultManualClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body">
+        <input type="hidden" id="fieldVaultId">
+        <label class="field">
+          <span class="field__label">Document name</span>
+          <input class="field__input" type="text" id="fieldVaultTitle" required placeholder="e.g. Thierry — Passport">
+        </label>
+        <label class="field">
+          <span class="field__label">Category</span>
+          <select class="field__input" id="fieldVaultCategory"></select>
+        </label>
+        <label class="field">
+          <span class="field__label">Expiry date (optional)</span>
+          <input class="field__input" type="date" id="fieldVaultExpiry">
+        </label>
+        <label class="field">
+          <span class="field__label">Notes</span>
+          <textarea class="field__input field__textarea" id="fieldVaultNotes" rows="2" placeholder="Optional details"></textarea>
+        </label>
+      </div>
+      <footer class="modal__footer">
+        <button type="submit" class="btn btn--primary">Save to vault</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Vault: document detail -->
+  <dialog class="modal modal--vault-detail" id="vaultDetailModal">
+    <div class="modal__form">
+      <header class="modal__header">
+        <h3 class="modal__title" id="vaultDetailTitle">Document</h3>
+        <button type="button" class="modal__close" id="vaultDetailClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body vault-detail__body" id="vaultDetailBody"></div>
+      <footer class="modal__footer vault-detail__footer">
+        <button type="button" class="btn btn--ghost" id="vaultDetailDelete">Delete</button>
+        <button type="button" class="btn btn--primary" id="vaultDetailEdit">Edit</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Brain Dump modal -->
+  <dialog class="modal modal--brain-dump" id="brainDumpModal">
+    <div class="modal__form">
+      <header class="modal__header">
+        <h3 class="modal__title">Brain Dump</h3>
+        <button type="button" class="modal__close" id="brainDumpClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body">
+        <p class="brain-dump__intro">Type everything on your mind — one idea per line.</p>
+        <textarea class="field__input field__textarea brain-dump__input" id="brainDumpText" rows="6" placeholder="Renew passport&#10;School form due Friday"></textarea>
+        <p class="brain-dump__result" id="brainDumpResult" hidden></p>
+      </div>
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--primary" id="brainDumpConvert">Convert to tasks</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Task modal -->
+  <dialog class="modal modal--task" id="taskModal">
+    <form class="modal__form" id="taskForm" method="dialog">
+      <header class="modal__header">
+        <h3 class="modal__title" id="taskModalTitle">Add task</h3>
+        <button type="button" class="modal__close" id="taskModalClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body modal__body--scroll">
+        <input type="hidden" id="fieldTaskId">
+        <input type="hidden" id="fieldTaskSubtasks" value="[]">
+        <label class="field"><span class="field__label">Title</span><input class="field__input" type="text" id="fieldTaskTitle" required></label>
+        <label class="field"><span class="field__label">Description</span><textarea class="field__input field__textarea" id="fieldTaskDescription" rows="2"></textarea></label>
+        <div class="field-row">
+          <label class="field field--half"><span class="field__label">Category</span><select class="field__input" id="fieldTaskCategory"></select></label>
+          <label class="field field--half"><span class="field__label">Priority</span><select class="field__input" id="fieldTaskPriority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></label>
+        </div>
+        <label class="field"><span class="field__label">Assign to</span>
+          <select class="field__input" id="fieldTaskAssignedTo">
+            <option value="me" selected>Me</option>
+            <option value="partner">Partner</option>
+            <option value="child">Child</option>
+            <option value="everyone">Everyone</option>
+          </select>
+        </label>
+        <div class="field-row">
+          <label class="field field--half"><span class="field__label">Start date</span><input class="field__input" type="date" id="fieldTaskStartDate"></label>
+          <label class="field field--half"><span class="field__label">Due date</span><input class="field__input" type="date" id="fieldTaskDueDate"></label>
+        </div>
+        <label class="field"><span class="field__label">Estimated duration (minutes)</span><input class="field__input" type="number" id="fieldTaskDuration" min="5" step="5"></label>
+        <label class="field"><span class="field__label">Tags</span><input class="field__input" type="text" id="fieldTaskTags" placeholder="family, urgent"></label>
+        <label class="field field--row"><input type="checkbox" id="fieldTaskRecurring"><span class="field__label field__label--inline">Recurring task</span></label>
+        <div id="taskRecurringFields" hidden>
+          <label class="field"><span class="field__label">Repeat</span><select class="field__input" id="fieldRecurringRule"><option value="daily">Daily</option><option value="weekly" selected>Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option><option value="every_90_days">Every 90 days</option><option value="first_monday">First Monday</option></select></label>
+        </div>
+        <label class="field"><span class="field__label">Progress (%)</span><input class="field__input" type="range" id="fieldTaskProgress" min="0" max="100" value="0"></label>
+        <div class="task-ai"><button type="button" class="btn btn--secondary" id="btnTaskBreakDown">Break down task</button></div>
+        <div class="task-breakdown" id="taskBreakdown" hidden><ol class="task-breakdown__list" id="taskBreakdownList"></ol></div>
+      </div>
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--ghost" id="btnTaskDelete" hidden>Delete</button>
+        <button type="submit" class="btn btn--primary" id="btnTaskSave">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Start life event workflow -->
+  <dialog class="modal modal--life-event" id="startWorkflowModal">
+    <form class="modal__form" id="startWorkflowForm" method="dialog">
+      <header class="modal__header">
+        <h3 class="modal__title" id="startWorkflowTitle">Start workflow</h3>
+        <button type="button" class="modal__close" id="startWorkflowClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body">
+        <p class="field__hint">We'll generate a checklist, timeline, tasks, and document list from your target date.</p>
+        <label class="field">
+          <span class="field__label">Target date</span>
+          <input class="field__input" type="date" id="fieldWorkflowTarget" required>
+        </label>
+      </div>
+      <footer class="modal__footer">
+        <button type="submit" class="btn btn--primary">Start workflow</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Action draft email (placeholder) -->
+  <dialog class="modal modal--action" id="actionDraftModal">
+    <form class="modal__form" id="actionDraftForm" method="dialog">
+      <header class="modal__header">
+        <h3 class="modal__title">Draft email</h3>
+        <button type="button" class="modal__close" id="actionDraftClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body">
+        <p class="field__hint">Placeholder draft — copy and send from your email app. No messages are sent from Life Admin.</p>
+        <label class="field">
+          <span class="field__label">Subject</span>
+          <input class="field__input" type="text" id="actionDraftSubject" readonly>
+        </label>
+        <label class="field">
+          <span class="field__label">Body</span>
+          <textarea class="field__input field__textarea" id="actionDraftBody" rows="8" readonly></textarea>
+        </label>
+      </div>
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--primary" id="actionDraftCopy">Copy to clipboard</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Context memory modal -->
+  <dialog class="modal modal--context" id="contextMemoryModal">
+    <form class="modal__form" id="contextMemoryForm" method="dialog">
+      <header class="modal__header">
+        <h3 class="modal__title" id="contextModalTitle">Add memory</h3>
+        <button type="button" class="modal__close" id="contextModalClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body">
+        <label class="field">
+          <span class="field__label">Category</span>
+          <select class="field__input" id="fieldMemoryCategory">
+            <option value="people">People</option>
+            <option value="preferences">Preferences</option>
+            <option value="dates">Important dates</option>
+            <option value="habits">Habits &amp; patterns</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field__label">Title</span>
+          <input class="field__input" type="text" id="fieldMemoryTitle" required placeholder="e.g. Travel style">
+        </label>
+        <label class="field">
+          <span class="field__label">What should I remember?</span>
+          <textarea class="field__input field__textarea" id="fieldMemoryBody" rows="3" placeholder="Usually renews insurance in July…"></textarea>
+        </label>
+      </div>
+      <footer class="modal__footer">
+        <button type="submit" class="btn btn--primary">Save memory</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Time block modal -->
+  <dialog class="modal modal--plan" id="timeBlockModal">
+    <form class="modal__form" id="timeBlockForm" method="dialog">
+      <header class="modal__header">
+        <h3 class="modal__title">Time block</h3>
+        <button type="button" class="modal__close" id="timeBlockClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body">
+        <input type="hidden" id="fieldBlockId">
+        <label class="field"><span class="field__label">Title</span><input class="field__input" type="text" id="fieldBlockTitle" required></label>
+        <label class="field"><span class="field__label">Date</span><input class="field__input" type="date" id="fieldBlockDate" required></label>
+        <div class="field-row">
+          <label class="field field--half"><span class="field__label">Start</span><input class="field__input" type="time" id="fieldBlockStart" value="09:00" required></label>
+          <label class="field field--half"><span class="field__label">End</span><input class="field__input" type="time" id="fieldBlockEnd" value="10:00" required></label>
+        </div>
+        <div class="field-row">
+          <label class="field field--half"><span class="field__label">Category</span>
+            <select class="field__input" id="fieldBlockCategory">
+              <option value="general">General</option>
+              <option value="family">Family</option>
+              <option value="work">Work</option>
+              <option value="documents">Documents</option>
+              <option value="mot">MOT</option>
+              <option value="bills">Bills</option>
+            </select>
+          </label>
+          <label class="field field--half"><span class="field__label">Priority</span>
+            <select class="field__input" id="fieldBlockPriority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--ghost" id="btnBlockDelete" hidden>Delete</button>
+        <button type="submit" class="btn btn--primary">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Family member modal -->
+  <dialog class="modal modal--family" id="familyMemberModal">
+    <form class="modal__form" id="familyMemberForm" method="dialog">
+      <header class="modal__header">
+        <h3 class="modal__title" id="familyMemberModalTitle">Add family member</h3>
+        <button type="button" class="modal__close" id="familyMemberClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body">
+        <input type="hidden" id="fieldMemberId">
+        <label class="field"><span class="field__label">Name</span><input class="field__input" type="text" id="fieldMemberName" required></label>
+        <label class="field"><span class="field__label">Relationship</span><input class="field__input" type="text" id="fieldMemberRelationship" placeholder="Partner, Daughter, Dog…"></label>
+        <div class="field-row">
+          <label class="field field--half"><span class="field__label">Role</span><select class="field__input" id="fieldMemberRole"></select></label>
+          <label class="field field--half"><span class="field__label">Date of birth</span><input class="field__input" type="date" id="fieldMemberDob"></label>
+        </div>
+        <p class="field__hint">Avatar shows initials until photo upload is added.</p>
+      </div>
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--ghost" id="btnMemberDelete" hidden>Delete</button>
+        <button type="submit" class="btn btn--primary" id="btnMemberSave">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Family reminder modal -->
+  <dialog class="modal modal--family" id="familyReminderModal">
+    <form class="modal__form" id="familyReminderForm" method="dialog">
+      <header class="modal__header">
+        <h3 class="modal__title" id="familyReminderModalTitle">Add family reminder</h3>
+        <button type="button" class="modal__close" id="familyReminderClose" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal__body">
+        <input type="hidden" id="fieldReminderId">
+        <label class="field"><span class="field__label">Title</span><input class="field__input" type="text" id="fieldReminderTitle" required placeholder="School trip Friday"></label>
+        <label class="field"><span class="field__label">Due date</span><input class="field__input" type="date" id="fieldReminderDue" required></label>
+        <div class="field-row">
+          <label class="field field--half"><span class="field__label">Linked to</span><select class="field__input" id="fieldReminderMember"></select></label>
+          <label class="field field--half"><span class="field__label">Severity</span>
+            <select class="field__input" id="fieldReminderSeverity">
+              <option value="info">Info</option>
+              <option value="warning" selected>Reminder</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--ghost" id="btnReminderDelete" hidden>Delete</button>
+        <button type="submit" class="btn btn--primary" id="btnReminderSave">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Reminder modal -->
   <dialog class="modal" id="itemModal">
     <form class="modal__form" id="itemForm" method="dialog">
       <header class="modal__header">
@@ -149,45 +1183,15 @@
         <button type="button" class="modal__close" id="modalClose" aria-label="Close">&times;</button>
       </header>
       <div class="modal__body">
-        <input type="hidden" id="itemId" name="id">
-        <input type="hidden" id="itemCategory" name="category">
-
-        <label class="field">
-          <span class="field__label" id="labelTitle">Name</span>
-          <input class="field__input" type="text" id="fieldTitle" name="title" required autocomplete="off">
-        </label>
-
-        <label class="field" id="fieldSubtitleWrap">
-          <span class="field__label" id="labelSubtitle">Details</span>
-          <input class="field__input" type="text" id="fieldSubtitle" name="subtitle" autocomplete="off">
-        </label>
-
-        <label class="field">
-          <span class="field__label" id="labelDueDate">Due date</span>
-          <input class="field__input" type="date" id="fieldDueDate" name="dueDate" required>
-        </label>
-
+        <input type="hidden" id="itemId"><input type="hidden" id="itemCategory">
+        <label class="field"><span class="field__label" id="labelTitle">Name</span><input class="field__input" type="text" id="fieldTitle" required></label>
+        <label class="field" id="fieldSubtitleWrap"><span class="field__label" id="labelSubtitle">Details</span><input class="field__input" type="text" id="fieldSubtitle"></label>
+        <label class="field"><span class="field__label" id="labelDueDate">Due date</span><input class="field__input" type="date" id="fieldDueDate" required></label>
         <div class="field-row" id="amountRow">
-          <label class="field field--half">
-            <span class="field__label">Amount</span>
-            <input class="field__input" type="number" id="fieldAmount" name="amount" min="0" step="0.01" placeholder="0.00">
-          </label>
-          <label class="field field--half">
-            <span class="field__label">Frequency</span>
-            <select class="field__input" id="fieldFrequency" name="frequency">
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-              <option value="weekly">Weekly</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="once">One-off</option>
-            </select>
-          </label>
+          <label class="field field--half"><span class="field__label">Amount</span><input class="field__input" type="number" id="fieldAmount" min="0" step="0.01"></label>
+          <label class="field field--half"><span class="field__label">Frequency</span><select class="field__input" id="fieldFrequency"><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="weekly">Weekly</option><option value="quarterly">Quarterly</option><option value="once">One-off</option></select></label>
         </div>
-
-        <label class="field">
-          <span class="field__label">Notes <span class="field__optional">(optional)</span></span>
-          <textarea class="field__input field__textarea" id="fieldNotes" name="notes" rows="2"></textarea>
-        </label>
+        <label class="field"><span class="field__label">Notes</span><textarea class="field__input field__textarea" id="fieldNotes" rows="2"></textarea></label>
       </div>
       <footer class="modal__footer">
         <button type="button" class="btn btn--ghost" id="btnDelete" hidden>Delete</button>
@@ -197,8 +1201,39 @@
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="supabase-client.js"></script>
-  <script src="app.js"></script>
+  <script src="supabase-client.js?v=20260601"></script>
+  <script src="access.js?v=20260524"></script>
+  <script src="profile.js?v=20260520"></script>
+  <script src="admin.js?v=20260520"></script>
+  <script src="briefing.js?v=20260520"></script>
+  <script src="task-ai.js?v=20260520"></script>
+  <script src="vault-intelligence.js?v=20260520"></script>
+  <script src="vault.js?v=20260520"></script>
+  <script src="family-insights.js?v=20260521"></script>
+  <script src="family.js?v=20260521"></script>
+  <script src="planning-ai.js?v=20260523"></script>
+  <script src="planning.js?v=20260523"></script>
+  <script src="onboarding.js?v=20260530"></script>
+  <script src="os-core.js?v=20260529"></script>
+  <script src="os-bindings.js?v=20260529"></script>
+  <script src="action-engine.js?v=20260528"></script>
+  <script src="action-ui.js?v=20260528"></script>
+  <script src="today-os.js?v=20260529"></script>
+  <script src="analytics.js?v=20260529"></script>
+  <script src="ai-prompts.js?v=20260529"></script>
+  <script src="context-engine.js?v=20260527"></script>
+  <script src="context-ui.js?v=20260527"></script>
+  <script src="ai-chief.js?v=20260520"></script>
+  <script src="life-event-templates.js?v=20260526"></script>
+  <script src="life-events-ai.js?v=20260526"></script>
+  <script src="workflow-definitions.js?v=20260526"></script>
+  <script src="workflow-engine.js?v=20260526"></script>
+  <script src="intent-engine.js?v=20260526"></script>
+  <script src="workflow-ui.js?v=20260526"></script>
+  <script src="life-events.js?v=20260526"></script>
+  <script src="notifications-center.js?v=20260522"></script>
+  <script src="tasks.js?v=20260521"></script>
+  <script src="today.js?v=20260523"></script>
+  <script src="app.js?v=20260529"></script>
 </body>
 </html>

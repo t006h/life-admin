@@ -1,0 +1,8 @@
+.DS_Store
+life-admin/
+.env
+.env.local
+.env*.local
+node_modules/
+frontend/config.local.js
+.vercel
