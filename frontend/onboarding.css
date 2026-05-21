@@ -13,6 +13,16 @@
   overflow: hidden;
 }
 
+.onboarding__live-prompt,
+.onboarding__details {
+  display: none;
+}
+
+.onboarding__live-prompt.onboarding__panel--open,
+.onboarding__details.onboarding__panel--open {
+  display: block;
+}
+
 .onboarding[hidden] {
   display: none !important;
 }
@@ -72,6 +82,12 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
+}
+
+.onboarding__screen[data-onboarding-step="reminder"] .onboarding__intent--centered {
+  flex: none;
+  justify-content: flex-start;
+  gap: 0;
 }
 
 .onboarding__sub {

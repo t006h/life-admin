@@ -4,7 +4,7 @@
 (function () {
   const LS_COMPLETE = "life_admin_onboarding_v1";
   const LS_EMAIL = "life_admin_onboarding_email";
-  const MIN_INPUT_CHARS = 3;
+  const MIN_INPUT_CHARS = 2;
 
   let els = {};
   let handlers = {};
@@ -123,6 +123,32 @@
     };
   }
 
+  function ensureReminderEls() {
+    if (els.reminderInput) return;
+    els.reminderInput = document.getElementById("onboardingReminderInput");
+    els.livePrompt = document.getElementById("onboardingLivePrompt");
+    els.promptText = document.getElementById("onboardingPromptText");
+    els.promptSub = document.getElementById("onboardingPromptSub");
+    els.detailsPhase = document.getElementById("onboardingDetailsPhase");
+    els.detailsLead = document.getElementById("onboardingDetailsLead");
+    els.detailTitleLabel = document.getElementById("onboardingDetailTitleLabel");
+    els.detailTitle = document.getElementById("onboardingDetailTitle");
+    els.detailDueDate = document.getElementById("onboardingDetailDueDate");
+    els.detailPriorityWrap = document.getElementById("onboardingDetailPriorityWrap");
+    els.detailPriority = document.getElementById("onboardingDetailPriority");
+    els.detailNotesWrap = document.getElementById("onboardingDetailNotesWrap");
+    els.detailNotes = document.getElementById("onboardingDetailNotes");
+    els.detailsSave = document.getElementById("onboardingDetailsSave");
+    els.reminderStatus = document.getElementById("onboardingReminderStatus");
+  }
+
+  function setPanelOpen(el, open) {
+    if (!el) return;
+    el.classList.toggle("onboarding__panel--open", open);
+    if (open) el.removeAttribute("hidden");
+    else el.setAttribute("hidden", "");
+  }
+
   function resetReminderStep() {
     pendingEntry = null;
     if (els.reminderInput) els.reminderInput.value = "";
@@ -131,8 +157,8 @@
   }
 
   function hideInlinePrompt() {
-    if (els.livePrompt) els.livePrompt.hidden = true;
-    if (els.detailsPhase) els.detailsPhase.hidden = true;
+    setPanelOpen(els.livePrompt, false);
+    setPanelOpen(els.detailsPhase, false);
     if (els.detailsSave) els.detailsSave.disabled = false;
   }
 
@@ -140,22 +166,20 @@
     pendingEntry = result;
     const isReminder = result.kind === "reminder";
 
-    if (els.livePrompt) {
-      els.livePrompt.hidden = false;
-      if (els.promptText) {
-        els.promptText.textContent = isReminder
-          ? `This looks like a ${result.label} reminder`
-          : "This looks like a task";
-      }
-      if (els.promptSub) {
-        els.promptSub.textContent = isReminder
-          ? "Add a due date and any extra details below."
-          : "Add a due date and priority below.";
-      }
+    setPanelOpen(els.livePrompt, true);
+    if (els.promptText) {
+      els.promptText.textContent = isReminder
+        ? `This looks like a ${result.label} reminder`
+        : "This looks like a task";
+    }
+    if (els.promptSub) {
+      els.promptSub.textContent = isReminder
+        ? "Add a due date and any extra details below."
+        : "Add a due date and priority below.";
     }
 
+    setPanelOpen(els.detailsPhase, true);
     if (els.detailsPhase) {
-      els.detailsPhase.hidden = false;
       if (els.detailsLead) {
         els.detailsLead.textContent = isReminder
           ? `${result.icon} ${result.label} reminder`
@@ -176,9 +200,19 @@
         els.detailsSave.disabled = false;
       }
     }
+
+    requestAnimationFrame(() => {
+      els.livePrompt?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  }
+
+  function onInput() {
+    ensureReminderEls();
+    scheduleCategoryPreview();
   }
 
   function updateCategoryPreview() {
+    ensureReminderEls();
     const text = els.reminderInput?.value?.trim();
     if (!text || text.length < MIN_INPUT_CHARS) {
       pendingEntry = null;
@@ -390,6 +424,7 @@
 
   window.LifeAdminOnboarding = {
     init,
+    onInput,
     isComplete,
     markComplete,
     shouldGateApp,
