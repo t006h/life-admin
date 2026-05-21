@@ -39,14 +39,14 @@
   <button type="button" class="btn-install-pwa" id="btnInstallPwa" hidden>Install app</button>
   <!-- Onboarding flow (first visit) -->
   <div class="onboarding" id="onboardingShell" hidden>
-    <section class="onboarding__screen onboarding__screen--active" data-onboarding-step="landing">
+    <section class="onboarding__screen" data-onboarding-step="landing" hidden>
       <p class="onboarding__logo">Life Admin</p>
       <h1 class="onboarding__headline">Remember less.<br>Live more.</h1>
       <p class="onboarding__sub">Your family life, handled calmly — one request at a time.</p>
       <button type="button" class="onboarding__cta" id="onboardingGetStarted">Get started</button>
     </section>
 
-    <section class="onboarding__screen" data-onboarding-step="auth" hidden>
+    <section class="onboarding__screen onboarding__screen--active" data-onboarding-step="auth">
       <p class="onboarding__logo">Sign in</p>
       <h2 class="onboarding__headline" style="font-size:1.75rem">Save your progress</h2>
       <p class="onboarding__sub">Optional for now — you can always continue without signing in.</p>
@@ -1228,7 +1228,7 @@
   <script src="planning-ai.js?v=20260523"></script>
   <script src="planning.js?v=20260523"></script>
   <script src="intent-engine.js?v=20260521f"></script>
-  <script src="onboarding.js?v=20260521g"></script>
+  <script src="onboarding.js?v=20260521h"></script>
   <script src="os-core.js?v=20260529"></script>
   <script src="os-bindings.js?v=20260529"></script>
   <script src="action-engine.js?v=20260528"></script>

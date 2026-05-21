@@ -1,5 +1,5 @@
 /**
- * Life Admin — onboarding (landing → auth → add task/reminder → done)
+ * Life Admin — onboarding (sign in → add task/reminder → done)
  */
 (function () {
   const LS_COMPLETE = "life_admin_onboarding_v1";
@@ -426,7 +426,7 @@
 
     document.body.classList.remove("onboarding-done");
     if (els.shell) els.shell.hidden = false;
-    showStep("landing");
+    showStep("auth");
     return true;
   }
 
